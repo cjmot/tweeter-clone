@@ -22,7 +22,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^6.22.2",
     "tweeter-shared": "file:../tweeter-shared",
-    "typescript": "^4.9.5",
+    "typescript": "^5.9.3",
     "vite-plugin-commonjs": "^0.8.2",
     "web-vitals": "^2.1.4"
   },
@@ -53,8 +53,8 @@
   "devDependencies": {
     "@types/node": "^20.11.24",
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^7.1.11",
-    "vite-plugin-svgr": "^3.3.0",
-    "vite-tsconfig-paths": "^4.3.1"
+    "vite": "^7.3.1",
+    "vite-plugin-svgr": "^4.5.0",
+    "vite-tsconfig-paths": "^6.0.4"
   }
 }
