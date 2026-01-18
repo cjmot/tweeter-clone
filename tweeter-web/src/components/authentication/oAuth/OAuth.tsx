@@ -1,20 +1,12 @@
-import  {OverlayTrigger, Tooltip } from "react-bootstrap";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ToastType } from "../../toaster/Toast";
-import { useContext } from "react";
-import { ToastActionsContext } from "../../toaster/ToastContexts";
+import { useMessageActions } from "../../toaster/MessageHooks";
 
 const OAuth = () => {
-    const { displayToast } = useContext(ToastActionsContext);
+    const { displayInfoMessage } = useMessageActions();
 
     const displayInfoMessageWithDarkBackground = (message: string): void => {
-        displayToast(
-            ToastType.Info,
-            message,
-            3000,
-            undefined,
-            "text-white bg-primary"
-        );
+        displayInfoMessage(message, 3000, "text-white bg-primary");
     };
 
     return (
@@ -23,9 +15,7 @@ const OAuth = () => {
                 type="button"
                 className="btn btn-link btn-floating mx-1"
                 onClick={() =>
-                    displayInfoMessageWithDarkBackground(
-                        "Google registration is not implemented."
-                    )
+                    displayInfoMessageWithDarkBackground("Google registration is not implemented.")
                 }
             >
                 <OverlayTrigger
@@ -57,9 +47,7 @@ const OAuth = () => {
                 type="button"
                 className="btn btn-link btn-floating mx-1"
                 onClick={() =>
-                    displayInfoMessageWithDarkBackground(
-                        "Twitter registration is not implemented."
-                    )
+                    displayInfoMessageWithDarkBackground("Twitter registration is not implemented.")
                 }
             >
                 <OverlayTrigger
@@ -91,9 +79,7 @@ const OAuth = () => {
                 type="button"
                 className="btn btn-link btn-floating mx-1"
                 onClick={() =>
-                    displayInfoMessageWithDarkBackground(
-                        "Github registration is not implemented."
-                    )
+                    displayInfoMessageWithDarkBackground("Github registration is not implemented.")
                 }
             >
                 <OverlayTrigger
@@ -104,7 +90,7 @@ const OAuth = () => {
                 </OverlayTrigger>
             </button>
         </div>
-    )
-}
+    );
+};
 
 export default OAuth;

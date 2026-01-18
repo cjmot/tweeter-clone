@@ -1,26 +1,26 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserItem from "../userItem/UserItem";
 import { useContext, useEffect, useState } from "react";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { UserInfoActionsContext, UserInfoContext } from "../userInfo/UserInfoContexts";
 import { useParams } from "react-router-dom";
-import { ToastType } from "../toaster/Toast";
 import { AuthToken, FakeData, User } from "tweeter-shared";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 export const PAGE_SIZE = 10;
 
 interface Props {
     itemDescription: string;
     featureURL: string;
-    loadMore: (authToken: AuthToken,
-               userAlias: string,
-               pageSize: number,
-               lastItem: User | null
+    loadMore: (
+        authToken: AuthToken,
+        userAlias: string,
+        pageSize: number,
+        lastItem: User | null
     ) => Promise<[User[], boolean]>;
 }
 
 const UserItemScroller = (props: Props) => {
-    const { displayToast } = useContext(ToastActionsContext);
+    const { displayErrorMessage } = useMessageActions();
     const [items, setItems] = useState<User[]>([]);
     const [hasMoreItems, setHasMoreItems] = useState(true);
     const [lastItem, setLastItem] = useState<User | null>(null);
@@ -72,18 +72,13 @@ const UserItemScroller = (props: Props) => {
             setLastItem(() => newItems[newItems.length - 1]);
             addItems(newItems);
         } catch (error) {
-            displayToast(
-                ToastType.Error,
-                `Failed to load ${props.itemDescription} because of exception: ${error}`,
-                0
+            displayErrorMessage(
+                `Failed to load ${props.itemDescription} because of exception: ${error}`
             );
         }
     };
 
-    const getUser = async (
-        authToken: AuthToken,
-        alias: string
-    ): Promise<User | null> => {
+    const getUser = async (authToken: AuthToken, alias: string): Promise<User | null> => {
         // TODO: Replace with the result of calling server
         return FakeData.instance.findUserByAlias(alias);
     };
@@ -98,10 +93,7 @@ const UserItemScroller = (props: Props) => {
                 loader={<h4>Loading...</h4>}
             >
                 {items.map((item, index) => (
-                    <div
-                        key={index}
-                        className="row mb-3 mx-0 px-0 border rounded bg-white"
-                    >
+                    <div key={index} className="row mb-3 mx-0 px-0 border rounded bg-white">
                         <UserItem user={item} featurePath={props.featureURL} />
                     </div>
                 ))}

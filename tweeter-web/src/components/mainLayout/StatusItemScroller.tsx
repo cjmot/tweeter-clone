@@ -1,30 +1,27 @@
 import { useContext } from "react";
-import {
-    UserInfoContext,
-    UserInfoActionsContext,
-} from "../userInfo/UserInfoContexts";
+import { UserInfoContext, UserInfoActionsContext } from "../userInfo/UserInfoContexts";
 import { AuthToken, FakeData, Status, User } from "tweeter-shared";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { useNavigate, useParams } from "react-router-dom";
-import { ToastType } from "../toaster/Toast";
 import StatusItem from "../statusItem/StatusItem";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 export const PAGE_SIZE = 10;
 
 interface Props {
     itemDescription: string;
     featureURL: string;
-    loadMore: (authToken: AuthToken,
-               userAlias: string,
-               pageSize: number,
-               lastItem: Status | null
+    loadMore: (
+        authToken: AuthToken,
+        userAlias: string,
+        pageSize: number,
+        lastItem: Status | null
     ) => Promise<[Status[], boolean]>;
 }
 
 const StatusItemScroller = (props: Props) => {
-    const { displayToast } = useContext(ToastActionsContext);
+    const { displayErrorMessage } = useMessageActions();
     const [items, setItems] = useState<Status[]>([]);
     const [hasMoreItems, setHasMoreItems] = useState(true);
     const [lastItem, setLastItem] = useState<Status | null>(null);
@@ -77,10 +74,8 @@ const StatusItemScroller = (props: Props) => {
             setLastItem(() => newItems[newItems.length - 1]);
             addItems(newItems);
         } catch (error) {
-            displayToast(
-                ToastType.Error,
-                `Failed to load ${props.itemDescription} items because of exception: ${error}`,
-                0
+            displayErrorMessage(
+                `Failed to load ${props.itemDescription} items because of exception: ${error}`
             );
         }
     };
@@ -100,11 +95,7 @@ const StatusItemScroller = (props: Props) => {
                 }
             }
         } catch (error) {
-            displayToast(
-                ToastType.Error,
-                `Failed to get user because of exception: ${error}`,
-                0
-            );
+            displayErrorMessage(`Failed to get user because of exception: ${error}`);
         }
     };
 
@@ -113,10 +104,7 @@ const StatusItemScroller = (props: Props) => {
         return value.substring(index);
     };
 
-    const getUser = async (
-        authToken: AuthToken,
-        alias: string
-    ): Promise<User | null> => {
+    const getUser = async (authToken: AuthToken, alias: string): Promise<User | null> => {
         // TODO: Replace with the result of calling server
         return FakeData.instance.findUserByAlias(alias);
     };
@@ -131,11 +119,8 @@ const StatusItemScroller = (props: Props) => {
                 loader={<h4>Loading...</h4>}
             >
                 {items.map((item, index) => (
-                    <div
-                        key={index}
-                        className="row mb-3 mx-0 px-0 border rounded bg-white"
-                    >
-                        <StatusItem item={item} navigateToUser={navigateToUser}/>
+                    <div key={index} className="row mb-3 mx-0 px-0 border rounded bg-white">
+                        <StatusItem item={item} navigateToUser={navigateToUser} />
                     </div>
                 ))}
             </InfiniteScroll>
