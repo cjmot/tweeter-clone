@@ -1,7 +1,7 @@
 import { AuthToken, FakeData, Status, User } from "tweeter-shared";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import StatusItem from "../statusItem/StatusItem";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserHooks";
@@ -24,7 +24,6 @@ const StatusItemScroller = (props: Props) => {
     const [items, setItems] = useState<Status[]>([]);
     const [hasMoreItems, setHasMoreItems] = useState(true);
     const [lastItem, setLastItem] = useState<Status | null>(null);
-    const navigate = useNavigate();
 
     const addItems = (newItems: Status[]) =>
         setItems((previousItems) => [...previousItems, ...newItems]);
@@ -79,30 +78,6 @@ const StatusItemScroller = (props: Props) => {
         }
     };
 
-    const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
-        event.preventDefault();
-
-        try {
-            const alias = extractAlias(event.target.toString());
-
-            const toUser = await getUser(authToken!, alias);
-
-            if (toUser) {
-                if (!toUser.equals(displayedUser!)) {
-                    setDisplayedUser(toUser);
-                    navigate(`${props.featureURL}/${toUser.alias}`);
-                }
-            }
-        } catch (error) {
-            displayErrorMessage(`Failed to get user because of exception: ${error}`);
-        }
-    };
-
-    const extractAlias = (value: string): string => {
-        const index = value.indexOf("@");
-        return value.substring(index);
-    };
-
     const getUser = async (authToken: AuthToken, alias: string): Promise<User | null> => {
         // TODO: Replace with the result of calling server
         return FakeData.instance.findUserByAlias(alias);
@@ -119,7 +94,7 @@ const StatusItemScroller = (props: Props) => {
             >
                 {items.map((item, index) => (
                     <div key={index} className="row mb-3 mx-0 px-0 border rounded bg-white">
-                        <StatusItem item={item} navigateToUser={navigateToUser} />
+                        <StatusItem item={item} featureURL={props.featureURL} />
                     </div>
                 ))}
             </InfiniteScroll>
