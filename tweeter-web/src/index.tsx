@@ -12,9 +12,9 @@ const container = document.getElementById("root")!;
 const root = createRoot(container);
 
 root.render(
-  <UserInfoProvider>
-    <ToastInfoProvider>
-      <App />
-    </ToastInfoProvider>
-  </UserInfoProvider>
+    <UserInfoProvider>
+        <ToastInfoProvider>
+            <App />
+        </ToastInfoProvider>
+    </UserInfoProvider>
 );
