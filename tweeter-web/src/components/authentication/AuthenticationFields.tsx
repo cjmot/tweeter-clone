@@ -1,12 +1,20 @@
-import { Dispatch, SetStateAction, KeyboardEvent } from "react";
+import { Dispatch, KeyboardEvent, SetStateAction } from "react";
 
 interface Props {
-    onEnterHandler: (event: KeyboardEvent<HTMLElement>) => void;
+    onEnterHandler: () => Promise<void>;
+    checkSubmitButtonStatus: () => boolean;
     setAlias: Dispatch<SetStateAction<string>>;
     setPassword: Dispatch<SetStateAction<string>>;
 }
 
-const AuthenticationFields = ({ onEnterHandler, setAlias, setPassword }: Props) => {
+const AuthenticationFields = (props: Props) => {
+
+    const handleEnter = (event: KeyboardEvent<HTMLElement>) => {
+        if (event.key == "Enter" && !props.checkSubmitButtonStatus()) {
+            props.onEnterHandler();
+        }
+    };
+
     return (
         <>
             <div className="form-floating">
@@ -16,8 +24,8 @@ const AuthenticationFields = ({ onEnterHandler, setAlias, setPassword }: Props) 
                     size={50}
                     id="aliasInput"
                     placeholder="name@example.com"
-                    onKeyDown={onEnterHandler}
-                    onChange={(event) => setAlias(event.target.value)}
+                    onKeyDown={handleEnter}
+                    onChange={(event) => props.setAlias(event.target.value)}
                 />
                 <label htmlFor="aliasInput">Alias</label>
             </div>
@@ -27,8 +35,8 @@ const AuthenticationFields = ({ onEnterHandler, setAlias, setPassword }: Props) 
                     className="form-control bottom"
                     id="passwordInput"
                     placeholder="Password"
-                    onKeyDown={onEnterHandler}
-                    onChange={(event) => setPassword(event.target.value)}
+                    onKeyDown={handleEnter}
+                    onChange={(event) => props.setPassword(event.target.value)}
                 />
                 <label htmlFor="passwordInput">Password</label>
             </div>

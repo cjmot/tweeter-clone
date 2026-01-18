@@ -118,7 +118,7 @@ const Register = () => {
     userImageBytes: Uint8Array,
     imageFileExtension: string
   ): Promise<[User, AuthToken]> => {
-    // Not neded now, but will be needed when you make the request to the server in milestone 3
+    // Not needed now, but will be needed when you make the request to the server in milestone 3
     const imageStringBase64: string =
       Buffer.from(userImageBytes).toString("base64");
 
@@ -160,7 +160,7 @@ const Register = () => {
           <label htmlFor="lastNameInput">Last Name</label>
         </div>
 
-        <AuthenticationFields onEnterHandler={registerOnEnter} setAlias={setAlias} setPassword={setPassword} />
+        <AuthenticationFields onEnterHandler={doRegister} checkSubmitButtonStatus={checkSubmitButtonStatus} setAlias={setAlias} setPassword={setPassword} />
 
         <div className="form-floating mb-3">
           <input
@@ -184,7 +184,7 @@ const Register = () => {
   const switchAuthenticationMethodFactory = () => {
     return (
       <div className="mb-3">
-        Algready registered? <Link to="/login">Sign in</Link>
+        Already registered? <Link to="/login">Sign in</Link>
       </div>
     );
   };
