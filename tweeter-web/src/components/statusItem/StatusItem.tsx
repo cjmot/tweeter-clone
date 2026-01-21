@@ -1,13 +1,15 @@
 import Post from "./Post";
-import { Status } from "tweeter-shared"
-import {Link} from "react-router-dom";
-import { MouseEvent } from "react";
+import { Status } from "tweeter-shared";
+import { Link } from "react-router-dom";
+import { useUserNavigation } from "../appNavbar/UserNavigationHook";
 
 interface Props {
-    item: Status,
-    navigateToUser: (event: MouseEvent,) => Promise<void>
+    item: Status;
+    featureURL: string;
 }
-const StatusItem = ({ item, navigateToUser }: Props) => {
+const StatusItem = ({ item, featureURL }: Props) => {
+    const { navigateToUser } = useUserNavigation();
+
     return (
         <div className="col bg-light mx-0 px-0">
             <div className="container px-0">
@@ -27,20 +29,20 @@ const StatusItem = ({ item, navigateToUser }: Props) => {
                             </b>{" "}
                             -{" "}
                             <Link
-                                to={`/feed/${item.user.alias}`}
-                                onClick={navigateToUser}
+                                to={`/${featureURL}/${item.user.alias}`}
+                                onClick={(event) => navigateToUser(event, featureURL)}
                             >
                                 {item.user.alias}
                             </Link>
                         </h2>
                         {item.formattedDate}
                         <br />
-                        <Post status={item} featurePath="/feed" />
+                        <Post status={item} featurePath={featureURL} />
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default StatusItem;
