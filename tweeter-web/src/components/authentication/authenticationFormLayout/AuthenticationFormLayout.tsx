@@ -1,4 +1,4 @@
-import OAuth from "../authentication/oAuth/OAuth";
+import OAuth from "../oAuth/OAuth";
 
 interface Props {
   headingText: string;
