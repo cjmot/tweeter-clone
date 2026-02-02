@@ -8,7 +8,7 @@ import UserItemScroller from "./components/mainLayout/UserItemScroller";
 import { AuthToken, FakeData, User, Status } from "tweeter-shared";
 import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import { useUserInfo } from "./components/userInfo/UserHooks";
-import { loadMoreFeedItems, loadMoreStoryItems, loadMoreFollowees, loadMoreFollowers } from "./services/loadItems"
+import { loadMoreFeedItems, loadMoreStoryItems, loadMoreFollowees, loadMoreFollowers } from "./services/loadMoreScrollerItems"
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
