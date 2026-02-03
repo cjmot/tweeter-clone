@@ -1,13 +1,13 @@
+import Post from "./Post";
+import { Status } from "tweeter-shared";
 import { Link } from "react-router-dom";
-import { User } from "tweeter-shared";
 import { useUserNavigation } from "../appNavbar/UserNavigationHook";
 
 interface Props {
-    user: User;
-    featurePath: string;
+    item: Status;
+    featureURL: string;
 }
-
-const UserItem = (props: Props) => {
+const StatusItem = ({ item, featureURL }: Props) => {
     const { navigateToUser } = useUserNavigation();
 
     return (
@@ -16,7 +16,7 @@ const UserItem = (props: Props) => {
                 <div className="row mx-0 px-0">
                     <div className="col-auto p-3">
                         <img
-                            src={props.user.imageUrl}
+                            src={item.user.imageUrl}
                             className="img-fluid"
                             width="80"
                             alt="Posting user"
@@ -25,16 +25,19 @@ const UserItem = (props: Props) => {
                     <div className="col">
                         <h2>
                             <b>
-                                {props.user.firstName} {props.user.lastName}
+                                {item.user.firstName} {item.user.lastName}
                             </b>{" "}
                             -{" "}
                             <Link
-                                to={`${props.featurePath}/${props.user.alias}`}
-                                onClick={(event) => navigateToUser(event, props.featurePath)}
+                                to={`/${featureURL}/${item.user.alias}`}
+                                onClick={(event) => navigateToUser(event, featureURL)}
                             >
-                                {props.user.alias}
+                                {item.user.alias}
                             </Link>
                         </h2>
+                        {item.formattedDate}
+                        <br />
+                        <Post status={item} featurePath={featureURL} />
                     </div>
                 </div>
             </div>
@@ -42,4 +45,4 @@ const UserItem = (props: Props) => {
     );
 };
 
-export default UserItem;
+export default StatusItem;
