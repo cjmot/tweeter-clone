@@ -5,10 +5,12 @@ import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import { AuthToken, FakeData, User, Status } from "tweeter-shared";
 import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import { useUserInfo } from "./components/userInfo/UserHooks";
-import { loadMoreFeedItems, loadMoreStoryItems, loadMoreFollowees, loadMoreFollowers } from "./services/loadMoreScrollerItems"
+import { loadMoreFeedItems, loadMoreStoryItems } from "./services/loadMoreScrollerItems";
+import { FolloweePresenter } from "./presenter/FolloweePresenter";
+import { UserItemView } from "./presenter/UserItemPresenter";
+import { FollowerPresenter } from "./presenter/FollowerPresenter";
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -63,7 +65,7 @@ const AuthenticatedRoutes = () => {
                             key={`followees-${displayedUser!.alias}`}
                             itemDescription={"followees"}
                             featureURL={"/followees"}
-                            loadMore={loadMoreFollowees}
+                            presenterFactory={(view: UserItemView) => new FolloweePresenter(view)}
                         />
                     }
                 />
@@ -74,7 +76,7 @@ const AuthenticatedRoutes = () => {
                             key={`followers-${displayedUser!.alias}`}
                             itemDescription={"followers"}
                             featureURL={"/followers"}
-                            loadMore={loadMoreFollowers}
+                            presenterFactory={(view: UserItemView) => new FollowerPresenter(view)}
                         />
                     }
                 />
