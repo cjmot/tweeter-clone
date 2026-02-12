@@ -5,12 +5,14 @@ import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
+import StatusItemsScroller from "./components/mainLayout/StatusItemsScroller";
 import { useUserInfo } from "./components/userInfo/UserHooks";
-import { loadMoreFeedItems, loadMoreStoryItems } from "./services/loadMoreScrollerItems";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
+import { StatusItemsView } from "./presenter/StatusItemsPresenter";
+import { FeedItemsPresenter } from "./presenter/FeedItemsPresenter";
+import { StoryItemsPresenter } from "./presenter/StoryItemsPresenter";
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -22,9 +24,7 @@ const App = () => {
     return (
         <div>
             <Toaster position="top-right" />
-            <BrowserRouter>
-                {isAuthenticated() ? <AuthenticatedRoutes /> : <UnauthenticatedRoutes />}
-            </BrowserRouter>
+            <BrowserRouter>{isAuthenticated() ? <AuthenticatedRoutes /> : <UnauthenticatedRoutes />}</BrowserRouter>
         </div>
     );
 };
@@ -39,22 +39,22 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="feed/:displayedUser"
                     element={
-                        <StatusItemScroller
+                        <StatusItemsScroller
                             key={`feed-${displayedUser!.alias}`}
                             itemDescription="feed"
                             featureURL={"/feed"}
-                            loadMore={loadMoreFeedItems}
+                            presenterFactory={(view: StatusItemsView) => new FeedItemsPresenter(view)}
                         />
                     }
                 />
                 <Route
                     path="story/:displayedUser"
                     element={
-                        <StatusItemScroller
+                        <StatusItemsScroller
                             key={`story-${displayedUser!.alias}`}
                             itemDescription="story"
                             featureURL={"/story"}
-                            loadMore={loadMoreStoryItems}
+                            presenterFactory={(view: StatusItemsView) => new StoryItemsPresenter(view)}
                         />
                     }
                 />
