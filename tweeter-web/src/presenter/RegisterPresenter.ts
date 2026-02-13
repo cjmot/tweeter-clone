@@ -1,17 +1,28 @@
 import { Buffer } from "buffer";
+import { ChangeEvent } from "react";
 import { AuthService } from "../model.service/AuthService";
 import { AuthPresenter, AuthView } from "./AuthPresenter";
 
-export interface ImageFileData {
+interface ImageFileData {
     imageBytes: Uint8Array;
     imageFileExtension: string;
 }
 
-export class RegisterPresenter extends AuthPresenter {
-    private readonly service: AuthService;
+export interface RegisterView extends AuthView {
+    setImageUrl: (imageUrl: string) => void;
+    setImageFileExtension: (imageFileExtension: string) => void;
+}
 
-    public constructor(view: AuthView) {
+export class RegisterPresenter extends AuthPresenter {
+    private readonly registerView: RegisterView;
+    private readonly service: AuthService;
+    private imageBytes: Uint8Array = new Uint8Array();
+    private imageFileExtension: string = "";
+    private rememberMe: boolean = false;
+
+    public constructor(view: RegisterView) {
         super(view);
+        this.registerView = view;
         this.service = new AuthService();
     }
 
@@ -19,13 +30,10 @@ export class RegisterPresenter extends AuthPresenter {
         firstName: string,
         lastName: string,
         alias: string,
-        password: string,
-        userImageBytes: Uint8Array,
-        imageFileExtension: string,
-        rememberMe: boolean
+        password: string
     ) => {
         // Not needed now, but will be needed when you make the request to the server in milestone 3.
-        const imageStringBase64: string = Buffer.from(userImageBytes).toString("base64");
+        const imageStringBase64: string = Buffer.from(this.imageBytes).toString("base64");
 
         await this.doAuth(
             () =>
@@ -35,15 +43,19 @@ export class RegisterPresenter extends AuthPresenter {
                     alias,
                     password,
                     imageStringBase64,
-                    imageFileExtension
+                    this.imageFileExtension
                 ),
             (user) => `/feed/${user.alias}`,
-            rememberMe,
+            this.rememberMe,
             "Failed to register user because of exception"
         );
     };
 
-    public parseImageFile = async (file: File): Promise<ImageFileData | null> => {
+    public setRememberMe = (rememberMe: boolean) => {
+        this.rememberMe = rememberMe;
+    };
+
+    private parseImageFile = async (file: File): Promise<ImageFileData | null> => {
         try {
             const imageFileExtension = this.getFileExtension(file);
             if (!imageFileExtension) {
@@ -57,6 +69,32 @@ export class RegisterPresenter extends AuthPresenter {
         } catch (error) {
             this.view.displayErrorMessage(`Failed to process image file because of exception: ${error}`);
             return null;
+        }
+    };
+
+    public handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        await this.handleImageFile(file);
+    };
+
+    private handleImageFile = async (file: File | undefined) => {
+        if (file) {
+            this.registerView.setImageUrl(URL.createObjectURL(file));
+            const imageFileData = await this.parseImageFile(file);
+            if (imageFileData) {
+                this.imageBytes = imageFileData.imageBytes;
+                this.imageFileExtension = imageFileData.imageFileExtension;
+                this.registerView.setImageFileExtension(imageFileData.imageFileExtension);
+            } else {
+                this.imageBytes = new Uint8Array();
+                this.imageFileExtension = "";
+                this.registerView.setImageFileExtension("");
+            }
+        } else {
+            this.registerView.setImageUrl("");
+            this.imageBytes = new Uint8Array();
+            this.imageFileExtension = "";
+            this.registerView.setImageFileExtension("");
         }
     };
 

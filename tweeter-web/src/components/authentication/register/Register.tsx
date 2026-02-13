@@ -1,34 +1,33 @@
 import "./Register.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { ChangeEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../authenticationFormLayout/AuthenticationFormLayout";
 import AuthenticationFields from "../authenticationFields/AuthenticationFields";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { useUserInfoActions } from "../../userInfo/UserHooks";
-import { AuthView } from "../../../presenter/AuthPresenter";
-import { RegisterPresenter } from "../../../presenter/RegisterPresenter";
+import { RegisterPresenter, RegisterView } from "../../../presenter/RegisterPresenter";
 
 const Register = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [alias, setAlias] = useState("");
     const [password, setPassword] = useState("");
-    const [imageBytes, setImageBytes] = useState<Uint8Array>(new Uint8Array());
     const [imageUrl, setImageUrl] = useState<string>("");
     const [imageFileExtension, setImageFileExtension] = useState<string>("");
-    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
     const { updateUserInfo } = useUserInfoActions();
     const { displayErrorMessage } = useMessageActions();
 
-    const view: AuthView = {
+    const view: RegisterView = {
         setIsLoading: setIsLoading,
         updateUserInfo: updateUserInfo,
         navigateTo: navigate,
         displayErrorMessage: displayErrorMessage,
+        setImageUrl: setImageUrl,
+        setImageFileExtension: setImageFileExtension,
     };
 
     const presenterRef = useRef<RegisterPresenter | null>(null);
@@ -46,39 +45,8 @@ const Register = () => {
         }
     };
 
-    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        await handleImageFile(file);
-    };
-
-    const handleImageFile = async (file: File | undefined) => {
-        if (file) {
-            setImageUrl(URL.createObjectURL(file));
-            const imageFileData = await presenterRef.current!.parseImageFile(file);
-            if (imageFileData) {
-                setImageBytes(imageFileData.imageBytes);
-                setImageFileExtension(imageFileData.imageFileExtension);
-            } else {
-                setImageBytes(new Uint8Array());
-                setImageFileExtension("");
-            }
-        } else {
-            setImageUrl("");
-            setImageBytes(new Uint8Array());
-            setImageFileExtension("");
-        }
-    };
-
     const doRegister = async () => {
-        await presenterRef.current!.doRegister(
-            firstName,
-            lastName,
-            alias,
-            password,
-            imageBytes,
-            imageFileExtension,
-            rememberMe
-        );
+        await presenterRef.current!.doRegister(firstName, lastName, alias, password);
     };
 
     const inputFieldFactory = () => {
@@ -122,7 +90,7 @@ const Register = () => {
                         className="d-inline-block py-5 px-4 form-control bottom"
                         id="imageFileInput"
                         onKeyDown={registerOnEnter}
-                        onChange={handleFileChange}
+                        onChange={presenterRef.current!.handleFileChange}
                     />
                     {imageUrl.length > 0 && (
                         <>
@@ -150,7 +118,7 @@ const Register = () => {
             oAuthHeading="Register with:"
             inputFieldFactory={inputFieldFactory}
             switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
-            setRememberMe={setRememberMe}
+            setRememberMe={presenterRef.current!.setRememberMe}
             submitButtonDisabled={checkSubmitButtonStatus}
             isLoading={isLoading}
             submit={doRegister}
