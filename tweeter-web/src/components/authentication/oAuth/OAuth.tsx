@@ -1,5 +1,3 @@
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef } from "react";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { OAuthPresenter, OAuthView } from "../../../presenter/OAuthPresenter";
