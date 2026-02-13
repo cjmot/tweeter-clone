@@ -5,7 +5,7 @@ import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemsScroller from "./components/mainLayout/StatusItemsScroller";
+import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import { useUserInfo } from "./components/userInfo/UserHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { UserItemView } from "./presenter/UserItemPresenter";
@@ -39,7 +39,7 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="feed/:displayedUser"
                     element={
-                        <StatusItemsScroller
+                        <StatusItemScroller
                             key={`feed-${displayedUser!.alias}`}
                             itemDescription="feed"
                             featureURL={"/feed"}
@@ -50,7 +50,7 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="story/:displayedUser"
                     element={
-                        <StatusItemsScroller
+                        <StatusItemScroller
                             key={`story-${displayedUser!.alias}`}
                             itemDescription="story"
                             featureURL={"/story"}

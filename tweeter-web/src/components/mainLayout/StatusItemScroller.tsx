@@ -13,7 +13,7 @@ interface Props {
     presenterFactory: (view: StatusItemsView) => StatusItemsPresenter;
 }
 
-const StatusItemsScroller = (props: Props) => {
+const StatusItemScroller = (props: Props) => {
     const { displayErrorMessage } = useMessageActions();
     const [items, setItems] = useState<Status[]>([]);
 
@@ -71,4 +71,4 @@ const StatusItemsScroller = (props: Props) => {
     );
 };
 
-export default StatusItemsScroller;
+export default StatusItemScroller;
