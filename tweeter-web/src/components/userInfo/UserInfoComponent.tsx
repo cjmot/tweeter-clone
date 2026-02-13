@@ -4,7 +4,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "./UserHooks";
 import { UserInfoPresenter, UserInfoView } from "../../presenter/UserInfoPresenter";
-import { StatusItemsPresenter } from "../../presenter/StatusItemsPresenter";
 
 const UserInfo = () => {
     const [isLoading, setIsLoading] = useState(false);
