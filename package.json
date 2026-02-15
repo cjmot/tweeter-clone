@@ -10,5 +10,8 @@
   "dependencies": {
     "rimraf": "^6.1.2",
     "vite-plugin-dts": "^4.5.4"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
   }
 }
