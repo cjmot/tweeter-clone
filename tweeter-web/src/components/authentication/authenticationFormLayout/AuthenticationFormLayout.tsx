@@ -1,4 +1,4 @@
-import OAuth from "../oAuth/OAuth";
+import OAuth from '../oAuth/OAuth';
 
 interface Props {
     headingText: string;
@@ -33,7 +33,7 @@ const AuthenticationFormLayout = (props: Props) => {
                                 type="checkbox"
                                 value="remember-me"
                                 onChange={(event) => props.setRememberMe(event.target.checked)}
-                            />{" "}
+                            />{' '}
                             Remember me
                         </label>
                     </div>

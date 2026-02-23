@@ -1,4 +1,4 @@
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { AuthToken, FakeData, User } from 'tweeter-shared';
 
 export class AuthService {
     public async login(alias: string, password: string): Promise<[User, AuthToken]> {
@@ -6,7 +6,7 @@ export class AuthService {
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
-            throw new Error("Invalid alias or password");
+            throw new Error('Invalid alias or password');
         }
 
         return [user, FakeData.instance.authToken];
@@ -24,7 +24,7 @@ export class AuthService {
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
-            throw new Error("Invalid registration");
+            throw new Error('Invalid registration');
         }
 
         return [user, FakeData.instance.authToken];

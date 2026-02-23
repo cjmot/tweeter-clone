@@ -1,6 +1,6 @@
-import { useContext } from "react";
-import { ToastActionsContext, ToastListContext } from "./ToastContexts";
-import { ToastType } from "./Toast";
+import { useContext } from 'react';
+import { ToastActionsContext, ToastListContext } from './ToastContexts';
+import { ToastType } from './Toast';
 
 interface MessageActions {
     displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => string;

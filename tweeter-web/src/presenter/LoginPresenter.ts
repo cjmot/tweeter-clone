@@ -1,5 +1,5 @@
-import { AuthService } from "../model.service/AuthService";
-import { AuthPresenter, AuthView } from "./AuthPresenter";
+import { AuthService } from '../model.service/AuthService';
+import { AuthPresenter, AuthView } from './AuthPresenter';
 
 export class LoginPresenter extends AuthPresenter {
     private readonly service: AuthService;
@@ -14,7 +14,7 @@ export class LoginPresenter extends AuthPresenter {
             () => this.service.login(alias, password),
             (user) => (originalUrl ? originalUrl : `/feed/${user.alias}`),
             rememberMe,
-            "Failed to log user in because of exception"
+            'Failed to log user in because of exception'
         );
     };
 }

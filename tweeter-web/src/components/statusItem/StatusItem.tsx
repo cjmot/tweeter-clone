@@ -1,7 +1,7 @@
-import Post from "./Post";
-import { Status } from "tweeter-shared";
-import { Link } from "react-router-dom";
-import { useUserNavigation } from "../appNavbar/UserNavigationHook";
+import Post from './Post';
+import { Status } from 'tweeter-shared';
+import { Link } from 'react-router-dom';
+import { useUserNavigation } from '../appNavbar/UserNavigationHook';
 
 interface Props {
     item: Status;
@@ -21,8 +21,8 @@ const StatusItem = ({ item, featureURL }: Props) => {
                         <h2>
                             <b>
                                 {item.user.firstName} {item.user.lastName}
-                            </b>{" "}
-                            -{" "}
+                            </b>{' '}
+                            -{' '}
                             <Link
                                 to={`/${featureURL}/${item.user.alias}`}
                                 onClick={(event) => navigateToUser(event, featureURL)}

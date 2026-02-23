@@ -1,5 +1,5 @@
-import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { AuthToken, User } from 'tweeter-shared';
+import { UserService } from '../model.service/UserService';
 
 export interface UserNavigationView {
     setDisplayedUser: (user: User) => void;
@@ -40,7 +40,7 @@ export class UserNavigationPresenter {
     };
 
     private extractAlias = (value: string): string => {
-        const index = value.indexOf("@");
+        const index = value.indexOf('@');
         return value.substring(index);
     };
 }

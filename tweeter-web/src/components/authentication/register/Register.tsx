@@ -1,20 +1,20 @@
-import "./Register.css";
-import "bootstrap/dist/css/bootstrap.css";
-import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import AuthenticationFormLayout from "../authenticationFormLayout/AuthenticationFormLayout";
-import AuthenticationFields from "../authenticationFields/AuthenticationFields";
-import { useMessageActions } from "../../toaster/MessageHooks";
-import { useUserInfoActions } from "../../userInfo/UserHooks";
-import { RegisterPresenter, RegisterView } from "../../../presenter/RegisterPresenter";
+import './Register.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import { useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthenticationFormLayout from '../authenticationFormLayout/AuthenticationFormLayout';
+import AuthenticationFields from '../authenticationFields/AuthenticationFields';
+import { useMessageActions } from '../../toaster/MessageHooks';
+import { useUserInfoActions } from '../../userInfo/UserHooks';
+import { RegisterPresenter, RegisterView } from '../../../presenter/RegisterPresenter';
 
 const Register = () => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [alias, setAlias] = useState("");
-    const [password, setPassword] = useState("");
-    const [imageUrl, setImageUrl] = useState<string>("");
-    const [imageFileExtension, setImageFileExtension] = useState<string>("");
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [alias, setAlias] = useState('');
+    const [password, setPassword] = useState('');
+    const [imageUrl, setImageUrl] = useState<string>('');
+    const [imageFileExtension, setImageFileExtension] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Register = () => {
     };
 
     const registerOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-        if (event.key == "Enter" && !checkSubmitButtonStatus()) {
+        if (event.key == 'Enter' && !checkSubmitButtonStatus()) {
             doRegister();
         }
     };

@@ -1,5 +1,5 @@
-import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { AuthToken, User } from 'tweeter-shared';
+import { UserService } from '../model.service/UserService';
 
 export interface UserItemView {
     addItems: (items: User[]) => void;

@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
-import { User, AuthToken } from "tweeter-shared";
-import { UserInfoContext, UserInfoActionsContext } from "./UserInfoContexts";
-import { UserInfo } from "./UserInfo";
+import { useCallback, useMemo, useState } from 'react';
+import { User, AuthToken } from 'tweeter-shared';
+import { UserInfoContext, UserInfoActionsContext } from './UserInfoContexts';
+import { UserInfo } from './UserInfo';
 
-const CURRENT_USER_KEY: string = "CurrentUserKey";
-const AUTH_TOKEN_KEY: string = "AuthTokenKey";
+const CURRENT_USER_KEY: string = 'CurrentUserKey';
+const AUTH_TOKEN_KEY: string = 'AuthTokenKey';
 
 interface Props {
     children: React.ReactNode;

@@ -1,4 +1,4 @@
-import { Dispatch, KeyboardEvent, SetStateAction } from "react";
+import { Dispatch, KeyboardEvent, SetStateAction } from 'react';
 
 interface Props {
     onEnterHandler: () => Promise<void>;
@@ -9,7 +9,7 @@ interface Props {
 
 const AuthenticationFields = (props: Props) => {
     const handleEnter = (event: KeyboardEvent<HTMLElement>) => {
-        if (event.key == "Enter" && !props.checkSubmitButtonStatus()) {
+        if (event.key == 'Enter' && !props.checkSubmitButtonStatus()) {
             props.onEnterHandler();
         }
     };

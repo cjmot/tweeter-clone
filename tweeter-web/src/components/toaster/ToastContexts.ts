@@ -1,5 +1,5 @@
-import { createContext } from "react";
-import { Toast, ToastType } from "./Toast";
+import { createContext } from 'react';
+import { Toast, ToastType } from './Toast';
 
 export const ToastListContext = createContext<Toast[]>([]);
 
@@ -18,7 +18,7 @@ interface ToastActions {
 
 const defaultToastActions: ToastActions = {
     displayExistingToast: () => null,
-    displayToast: () => "",
+    displayToast: () => '',
     deleteToast: () => null,
     deleteAllToasts: () => null,
 };

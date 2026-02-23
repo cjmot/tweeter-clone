@@ -1,6 +1,6 @@
-import { Context, createContext } from "react";
-import { User, AuthToken } from "tweeter-shared";
-import { UserInfo } from "./UserInfo";
+import { Context, createContext } from 'react';
+import { User, AuthToken } from 'tweeter-shared';
+import { UserInfo } from './UserInfo';
 
 export const UserInfoContext = createContext<UserInfo>({} as UserInfo);
 

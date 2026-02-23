@@ -1,4 +1,4 @@
-import { Toast } from "../components/toaster/Toast";
+import { Toast } from '../components/toaster/Toast';
 
 export interface ToasterView {
     deleteMessage: (messageId: string) => void;

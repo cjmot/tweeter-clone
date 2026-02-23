@@ -1,5 +1,5 @@
-import { AuthToken, Status, User } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
+import { AuthToken, Status, User } from 'tweeter-shared';
+import { UserService } from '../model.service/UserService';
 
 export interface StatusItemsView {
     addItems: (items: Status[]) => void;

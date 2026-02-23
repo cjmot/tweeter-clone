@@ -14,6 +14,6 @@ export class OAuthPresenter {
     }
 
     public displayOAuthNotImplementedMessage = (providerName: string) => {
-        this.view.displayInfoMessage(`${providerName} registration is not implemented.`, 3000, "text-white bg-primary");
+        this.view.displayInfoMessage(`${providerName} registration is not implemented.`, 3000, 'text-white bg-primary');
     };
 }

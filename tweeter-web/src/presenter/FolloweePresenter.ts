@@ -1,6 +1,6 @@
-import { FollowService } from "../model.service/FollowService";
-import { AuthToken } from "tweeter-shared";
-import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
+import { FollowService } from '../model.service/FollowService';
+import { AuthToken } from 'tweeter-shared';
+import { UserItemPresenter, UserItemView } from './UserItemPresenter';
 
 export const PAGE_SIZE = 10;
 

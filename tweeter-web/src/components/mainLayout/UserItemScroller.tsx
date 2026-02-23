@@ -1,11 +1,11 @@
-import InfiniteScroll from "react-infinite-scroll-component";
-import UserItem from "../userItem/UserItem";
-import { useContext, useEffect, useRef, useState } from "react";
-import { UserInfoContext } from "../userInfo/UserInfoContexts";
-import { useParams } from "react-router-dom";
-import { User } from "tweeter-shared";
-import { useMessageActions } from "../toaster/MessageHooks";
-import { UserItemPresenter, UserItemView } from "../../presenter/UserItemPresenter";
+import InfiniteScroll from 'react-infinite-scroll-component';
+import UserItem from '../userItem/UserItem';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { UserInfoContext } from '../userInfo/UserInfoContexts';
+import { useParams } from 'react-router-dom';
+import { User } from 'tweeter-shared';
+import { useMessageActions } from '../toaster/MessageHooks';
+import { UserItemPresenter, UserItemView } from '../../presenter/UserItemPresenter';
 
 interface Props {
     itemDescription: string;

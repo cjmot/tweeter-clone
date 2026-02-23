@@ -1,9 +1,9 @@
-import "./UserInfoComponent.css";
-import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useMessageActions } from "../toaster/MessageHooks";
-import { useUserInfo, useUserInfoActions } from "./UserHooks";
-import { UserInfoPresenter, UserInfoView } from "../../presenter/UserInfoPresenter";
+import './UserInfoComponent.css';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useMessageActions } from '../toaster/MessageHooks';
+import { useUserInfo, useUserInfoActions } from './UserHooks';
+import { UserInfoPresenter, UserInfoView } from '../../presenter/UserInfoPresenter';
 
 const UserInfo = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -47,14 +47,14 @@ const UserInfo = () => {
     };
 
     const getBaseUrl = (): string => {
-        const segments = location.pathname.split("/@");
-        return segments.length > 1 ? segments[0] : "/";
+        const segments = location.pathname.split('/@');
+        return segments.length > 1 ? segments[0] : '/';
     };
 
     const followDisplayedUser = async (event: React.MouseEvent): Promise<void> => {
         event.preventDefault();
 
-        let followingUserToast = "";
+        let followingUserToast = '';
 
         try {
             setIsLoading(true);
@@ -71,7 +71,7 @@ const UserInfo = () => {
     const unfollowDisplayedUser = async (event: React.MouseEvent): Promise<void> => {
         event.preventDefault();
 
-        let unfollowingUserToast = "";
+        let unfollowingUserToast = '';
 
         try {
             setIsLoading(true);
@@ -98,7 +98,7 @@ const UserInfo = () => {
                         <div className="col p-3">
                             {!displayedUser.equals(currentUser) && (
                                 <p id="returnToLoggedInUser">
-                                    Return to{" "}
+                                    Return to{' '}
                                     <Link to={`./${currentUser.alias}`} onClick={switchToLoggedInUser}>
                                         logged in user
                                     </Link>
@@ -123,7 +123,7 @@ const UserInfo = () => {
                                             id="unFollowButton"
                                             className="btn btn-md btn-secondary me-1"
                                             type="submit"
-                                            style={{ width: "6em" }}
+                                            style={{ width: '6em' }}
                                             onClick={unfollowDisplayedUser}
                                         >
                                             {isLoading ? (
@@ -141,7 +141,7 @@ const UserInfo = () => {
                                             id="followButton"
                                             className="btn btn-md btn-primary me-1"
                                             type="submit"
-                                            style={{ width: "6em" }}
+                                            style={{ width: '6em' }}
                                             onClick={followDisplayedUser}
                                         >
                                             {isLoading ? (

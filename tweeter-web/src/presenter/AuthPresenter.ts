@@ -1,4 +1,4 @@
-import { AuthToken, User } from "tweeter-shared";
+import { AuthToken, User } from 'tweeter-shared';
 
 export interface AuthView {
     setIsLoading: (isLoading: boolean) => void;

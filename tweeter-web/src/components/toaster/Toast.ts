@@ -1,11 +1,11 @@
-import { v4 as uuid } from "uuid";
+import { v4 as uuid } from 'uuid';
 
 export enum ToastType {
-    Success = "Success",
-    Error = "Error",
-    Info = "Info",
-    Warning = "Warning",
-    Other = "",
+    Success = 'Success',
+    Error = 'Error',
+    Info = 'Info',
+    Warning = 'Warning',
+    Other = '',
 }
 export interface Toast {
     id: string;
@@ -21,7 +21,7 @@ export function makeToast(
     text: string,
     deleteAfterMillis: number,
     title?: string,
-    bootstrapClasses: string = ""
+    bootstrapClasses: string = ''
 ): Toast {
     return {
         id: uuid(),

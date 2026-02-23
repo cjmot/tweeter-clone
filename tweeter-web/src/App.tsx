@@ -1,18 +1,18 @@
-import "./App.css";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import Login from "./components/authentication/login/Login";
-import Register from "./components/authentication/register/Register";
-import MainLayout from "./components/mainLayout/MainLayout";
-import Toaster from "./components/toaster/Toaster";
-import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
-import { useUserInfo } from "./components/userInfo/UserHooks";
-import { FolloweePresenter } from "./presenter/FolloweePresenter";
-import { UserItemView } from "./presenter/UserItemPresenter";
-import { FollowerPresenter } from "./presenter/FollowerPresenter";
-import { StatusItemsView } from "./presenter/StatusItemsPresenter";
-import { FeedItemsPresenter } from "./presenter/FeedItemsPresenter";
-import { StoryItemsPresenter } from "./presenter/StoryItemsPresenter";
+import './App.css';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import Login from './components/authentication/login/Login';
+import Register from './components/authentication/register/Register';
+import MainLayout from './components/mainLayout/MainLayout';
+import Toaster from './components/toaster/Toaster';
+import UserItemScroller from './components/mainLayout/UserItemScroller';
+import StatusItemScroller from './components/mainLayout/StatusItemScroller';
+import { useUserInfo } from './components/userInfo/UserHooks';
+import { FolloweePresenter } from './presenter/FolloweePresenter';
+import { UserItemView } from './presenter/UserItemPresenter';
+import { FollowerPresenter } from './presenter/FollowerPresenter';
+import { StatusItemsView } from './presenter/StatusItemsPresenter';
+import { FeedItemsPresenter } from './presenter/FeedItemsPresenter';
+import { StoryItemsPresenter } from './presenter/StoryItemsPresenter';
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -42,7 +42,7 @@ const AuthenticatedRoutes = () => {
                         <StatusItemScroller
                             key={`feed-${displayedUser!.alias}`}
                             itemDescription="feed"
-                            featureURL={"/feed"}
+                            featureURL={'/feed'}
                             presenterFactory={(view: StatusItemsView) => new FeedItemsPresenter(view)}
                         />
                     }
@@ -53,7 +53,7 @@ const AuthenticatedRoutes = () => {
                         <StatusItemScroller
                             key={`story-${displayedUser!.alias}`}
                             itemDescription="story"
-                            featureURL={"/story"}
+                            featureURL={'/story'}
                             presenterFactory={(view: StatusItemsView) => new StoryItemsPresenter(view)}
                         />
                     }
@@ -63,8 +63,8 @@ const AuthenticatedRoutes = () => {
                     element={
                         <UserItemScroller
                             key={`followees-${displayedUser!.alias}`}
-                            itemDescription={"followees"}
-                            featureURL={"/followees"}
+                            itemDescription={'followees'}
+                            featureURL={'/followees'}
                             presenterFactory={(view: UserItemView) => new FolloweePresenter(view)}
                         />
                     }
@@ -74,8 +74,8 @@ const AuthenticatedRoutes = () => {
                     element={
                         <UserItemScroller
                             key={`followers-${displayedUser!.alias}`}
-                            itemDescription={"followers"}
-                            featureURL={"/followers"}
+                            itemDescription={'followers'}
+                            featureURL={'/followers'}
                             presenterFactory={(view: UserItemView) => new FollowerPresenter(view)}
                         />
                     }

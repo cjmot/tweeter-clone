@@ -1,7 +1,7 @@
-import { Buffer } from "buffer";
-import { ChangeEvent } from "react";
-import { AuthService } from "../model.service/AuthService";
-import { AuthPresenter, AuthView } from "./AuthPresenter";
+import { Buffer } from 'buffer';
+import { ChangeEvent } from 'react';
+import { AuthService } from '../model.service/AuthService';
+import { AuthPresenter, AuthView } from './AuthPresenter';
 
 interface ImageFileData {
     imageBytes: Uint8Array;
@@ -17,7 +17,7 @@ export class RegisterPresenter extends AuthPresenter {
     private readonly registerView: RegisterView;
     private readonly service: AuthService;
     private imageBytes: Uint8Array = new Uint8Array();
-    private imageFileExtension: string = "";
+    private imageFileExtension: string = '';
     private rememberMe: boolean = false;
 
     public constructor(view: RegisterView) {
@@ -28,14 +28,14 @@ export class RegisterPresenter extends AuthPresenter {
 
     public doRegister = async (firstName: string, lastName: string, alias: string, password: string) => {
         // Not needed now, but will be needed when you make the request to the server in milestone 3.
-        const imageStringBase64: string = Buffer.from(this.imageBytes).toString("base64");
+        const imageStringBase64: string = Buffer.from(this.imageBytes).toString('base64');
 
         await this.doAuth(
             () =>
                 this.service.register(firstName, lastName, alias, password, imageStringBase64, this.imageFileExtension),
             (user) => `/feed/${user.alias}`,
             this.rememberMe,
-            "Failed to register user because of exception"
+            'Failed to register user because of exception'
         );
     };
 
@@ -47,7 +47,7 @@ export class RegisterPresenter extends AuthPresenter {
         try {
             const imageFileExtension = this.getFileExtension(file);
             if (!imageFileExtension) {
-                throw new Error("Image file must have a valid extension");
+                throw new Error('Image file must have a valid extension');
             }
 
             const fileBuffer = await file.arrayBuffer();
@@ -75,18 +75,18 @@ export class RegisterPresenter extends AuthPresenter {
                 this.registerView.setImageFileExtension(imageFileData.imageFileExtension);
             } else {
                 this.imageBytes = new Uint8Array();
-                this.imageFileExtension = "";
-                this.registerView.setImageFileExtension("");
+                this.imageFileExtension = '';
+                this.registerView.setImageFileExtension('');
             }
         } else {
-            this.registerView.setImageUrl("");
+            this.registerView.setImageUrl('');
             this.imageBytes = new Uint8Array();
-            this.imageFileExtension = "";
-            this.registerView.setImageFileExtension("");
+            this.imageFileExtension = '';
+            this.registerView.setImageFileExtension('');
         }
     };
 
     private getFileExtension = (file: File): string | undefined => {
-        return file.name.split(".").pop();
+        return file.name.split('.').pop();
     };
 }

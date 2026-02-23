@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
-import { User } from "tweeter-shared";
-import { useUserNavigation } from "../appNavbar/UserNavigationHook";
+import { Link } from 'react-router-dom';
+import { User } from 'tweeter-shared';
+import { useUserNavigation } from '../appNavbar/UserNavigationHook';
 
 interface Props {
     user: User;
@@ -21,8 +21,8 @@ const UserItem = (props: Props) => {
                         <h2>
                             <b>
                                 {props.user.firstName} {props.user.lastName}
-                            </b>{" "}
-                            -{" "}
+                            </b>{' '}
+                            -{' '}
                             <Link
                                 to={`${props.featurePath}/${props.user.alias}`}
                                 onClick={(event) => navigateToUser(event, props.featurePath)}
