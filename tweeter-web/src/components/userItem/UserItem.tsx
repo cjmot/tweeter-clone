@@ -15,12 +15,7 @@ const UserItem = (props: Props) => {
             <div className="container px-0">
                 <div className="row mx-0 px-0">
                     <div className="col-auto p-3">
-                        <img
-                            src={props.user.imageUrl}
-                            className="img-fluid"
-                            width="80"
-                            alt="Posting user"
-                        />
+                        <img src={props.user.imageUrl} className="img-fluid" width="80" alt="Posting user" />
                     </div>
                     <div className="col">
                         <h2>

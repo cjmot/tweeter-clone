@@ -8,7 +8,6 @@ interface Props {
 }
 
 const AuthenticationFields = (props: Props) => {
-
     const handleEnter = (event: KeyboardEvent<HTMLElement>) => {
         if (event.key == "Enter" && !props.checkSubmitButtonStatus()) {
             props.onEnterHandler();
@@ -41,7 +40,7 @@ const AuthenticationFields = (props: Props) => {
                 <label htmlFor="passwordInput">Password</label>
             </div>
         </>
-    )
-}
+    );
+};
 
 export default AuthenticationFields;

@@ -5,12 +5,7 @@ import { UserInfo } from "./UserInfo";
 export const UserInfoContext = createContext<UserInfo>({} as UserInfo);
 
 export interface UserInfoActions {
-    updateUserInfo: (
-        currentUser: User,
-        displayedUser: User | null,
-        authToken: AuthToken,
-        remember: boolean
-    ) => void;
+    updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void;
     clearUserInfo: () => void;
     setDisplayedUser: (user: User) => void;
 }
@@ -21,5 +16,4 @@ const defaultUserInfoActions: UserInfoActions = {
     setDisplayedUser: () => null,
 };
 
-export const UserInfoActionsContext: Context<UserInfoActions> =
-    createContext<UserInfoActions>(defaultUserInfoActions);
+export const UserInfoActionsContext: Context<UserInfoActions> = createContext<UserInfoActions>(defaultUserInfoActions);

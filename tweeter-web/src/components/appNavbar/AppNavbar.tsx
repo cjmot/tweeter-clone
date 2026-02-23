@@ -55,9 +55,7 @@ const AppNavbar = () => {
                             <NavLink
                                 to={`/feed/${displayedUser!.alias}`}
                                 className={() =>
-                                    location.pathname.startsWith("/feed/")
-                                        ? "nav-link active"
-                                        : "nav-link"
+                                    location.pathname.startsWith("/feed/") ? "nav-link active" : "nav-link"
                                 }
                             >
                                 Feed
@@ -67,9 +65,7 @@ const AppNavbar = () => {
                             <NavLink
                                 to={`/story/${displayedUser!.alias}`}
                                 className={() =>
-                                    location.pathname.startsWith("/story/")
-                                        ? "nav-link active"
-                                        : "nav-link"
+                                    location.pathname.startsWith("/story/") ? "nav-link active" : "nav-link"
                                 }
                             >
                                 Story
@@ -79,9 +75,7 @@ const AppNavbar = () => {
                             <NavLink
                                 to={`/followees/${displayedUser!.alias}`}
                                 className={() =>
-                                    location.pathname.startsWith("/followees/")
-                                        ? "nav-link active"
-                                        : "nav-link"
+                                    location.pathname.startsWith("/followees/") ? "nav-link active" : "nav-link"
                                 }
                             >
                                 Followees
@@ -91,9 +85,7 @@ const AppNavbar = () => {
                             <NavLink
                                 to={`/followers/${displayedUser!.alias}`}
                                 className={() =>
-                                    location.pathname.startsWith("/followers/")
-                                        ? "nav-link active"
-                                        : "nav-link"
+                                    location.pathname.startsWith("/followers/") ? "nav-link active" : "nav-link"
                                 }
                             >
                                 Followers
@@ -104,9 +96,7 @@ const AppNavbar = () => {
                                 id="logout"
                                 onClick={logOut}
                                 to={location.pathname}
-                                className={({ isActive }) =>
-                                    isActive ? "nav-link active" : "nav-link"
-                                }
+                                className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
                             >
                                 Logout
                             </NavLink>

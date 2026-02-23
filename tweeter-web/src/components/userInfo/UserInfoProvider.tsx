@@ -41,12 +41,7 @@ const UserInfoProvider: React.FC<Props> = ({ children }) => {
     });
 
     const updateUserInfo = useCallback(
-        (
-            currentUser: User,
-            displayedUser: User | null,
-            authToken: AuthToken,
-            remember: boolean = false
-        ) => {
+        (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean = false) => {
             setUserInfo(() => {
                 return {
                     currentUser: currentUser,
@@ -91,9 +86,7 @@ const UserInfoProvider: React.FC<Props> = ({ children }) => {
 
     return (
         <UserInfoContext.Provider value={userInfo}>
-            <UserInfoActionsContext.Provider value={userInfoActions}>
-                {children}
-            </UserInfoActionsContext.Provider>
+            <UserInfoActionsContext.Provider value={userInfoActions}>{children}</UserInfoActionsContext.Provider>
         </UserInfoContext.Provider>
     );
 };

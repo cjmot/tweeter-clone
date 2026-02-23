@@ -1,23 +1,15 @@
 import { StatusService } from "../model.service/StatusService";
-import { UserService } from "../model.service/UserService";
-import { AuthToken, User } from "tweeter-shared";
+import { AuthToken } from "tweeter-shared";
 import { StatusItemsPresenter, StatusItemsView } from "./StatusItemsPresenter";
 
 export const PAGE_SIZE = 10;
 
 export class StoryItemsPresenter extends StatusItemsPresenter {
     private service: StatusService;
-    private userService: UserService;
 
     public constructor(view: StatusItemsView) {
         super(view);
         this.service = new StatusService();
-        this.userService = new UserService();
-    }
-
-    public async getUser(authToken: AuthToken, alias: string): Promise<User | null> {
-        // TODO: Replace with the result of calling server
-        return this.userService.getUser(authToken, alias);
     }
 
     loadMoreItems = async (authToken: AuthToken, userAlias: string) => {

@@ -51,9 +51,7 @@ const ToastInfoProvider: React.FC<Props> = ({ children }) => {
 
     return (
         <ToastListContext.Provider value={toastList}>
-            <ToastActionsContext.Provider value={toastActions}>
-                {children}
-            </ToastActionsContext.Provider>
+            <ToastActionsContext.Provider value={toastActions}>{children}</ToastActionsContext.Provider>
         </ToastListContext.Provider>
     );
 };

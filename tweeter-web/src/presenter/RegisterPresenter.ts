@@ -26,25 +26,13 @@ export class RegisterPresenter extends AuthPresenter {
         this.service = new AuthService();
     }
 
-    public doRegister = async (
-        firstName: string,
-        lastName: string,
-        alias: string,
-        password: string
-    ) => {
+    public doRegister = async (firstName: string, lastName: string, alias: string, password: string) => {
         // Not needed now, but will be needed when you make the request to the server in milestone 3.
         const imageStringBase64: string = Buffer.from(this.imageBytes).toString("base64");
 
         await this.doAuth(
             () =>
-                this.service.register(
-                    firstName,
-                    lastName,
-                    alias,
-                    password,
-                    imageStringBase64,
-                    this.imageFileExtension
-                ),
+                this.service.register(firstName, lastName, alias, password, imageStringBase64, this.imageFileExtension),
             (user) => `/feed/${user.alias}`,
             this.rememberMe,
             "Failed to register user because of exception"
