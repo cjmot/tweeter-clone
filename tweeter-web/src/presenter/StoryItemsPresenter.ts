@@ -5,16 +5,16 @@ import { StatusItemsPresenter, StatusItemsView } from './StatusItemsPresenter';
 export const PAGE_SIZE = 10;
 
 export class StoryItemsPresenter extends StatusItemsPresenter {
-    private service: StatusService;
+    private statusService: StatusService;
 
     public constructor(view: StatusItemsView) {
         super(view);
-        this.service = new StatusService();
+        this.statusService = new StatusService();
     }
 
     loadMoreItems = async (authToken: AuthToken, userAlias: string) => {
         try {
-            const [newItems, hasMore] = await this.service.loadMoreStoryItems(
+            const [newItems, hasMore] = await this.statusService.loadMoreStoryItems(
                 authToken,
                 userAlias,
                 PAGE_SIZE,
