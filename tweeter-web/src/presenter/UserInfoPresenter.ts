@@ -9,12 +9,7 @@ export interface UserInfoView extends View {
 }
 
 export class UserInfoPresenter extends Presenter<UserInfoView> {
-    private readonly userService: UserService;
-
-    constructor(view: UserInfoView) {
-        super(view);
-        this.userService = new UserService();
-    }
+    private readonly userService = new UserService();
 
     loadUserInfo = async (authToken: AuthToken, currentUser: User, displayedUser: User) => {
         await Promise.all([

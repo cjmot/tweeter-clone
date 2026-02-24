@@ -1,6 +1,7 @@
 import { AuthToken, FakeData, User } from 'tweeter-shared';
+import { Service } from './Service';
 
-export class AuthService {
+export class AuthService implements Service {
     public async login(alias: string, password: string): Promise<[User, AuthToken]> {
         // TODO: Replace with the result of calling the server
         const user = FakeData.instance.firstUser;

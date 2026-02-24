@@ -2,10 +2,6 @@ import { Toast } from '../components/toaster/Toast';
 import { MessageView, Presenter } from './Presenter';
 
 export class ToasterPresenter extends Presenter<MessageView> {
-    public constructor(view: MessageView) {
-        super(view);
-    }
-
     public deleteExpiredToasts = (messageList: Toast[]) => {
         const now = Date.now();
 

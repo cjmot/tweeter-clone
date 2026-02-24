@@ -1,33 +1,18 @@
-import { Buffer } from 'buffer';
 import { ChangeEvent } from 'react';
-import { AuthService } from '../model.service/AuthService';
-import { AuthPresenter, AuthView } from './AuthPresenter';
+import { AuthPresenter } from './AuthPresenter';
 
 interface ImageFileData {
     imageBytes: Uint8Array;
     imageFileExtension: string;
 }
 
-export interface RegisterView extends AuthView {
-    setImageUrl: (imageUrl: string) => void;
-    setImageFileExtension: (imageFileExtension: string) => void;
-}
-
 export class RegisterPresenter extends AuthPresenter {
-    private readonly registerView: RegisterView;
-    private readonly service: AuthService;
     private imageFileExtension: string = '';
     private rememberMe: boolean = false;
 
-    public constructor(view: RegisterView) {
-        super(view);
-        this.registerView = view;
-        this.service = new AuthService();
-    }
-
     public doRegister = async (firstName: string, lastName: string, alias: string, password: string) => {
         await this.doAuth(
-            () => this.service.register(firstName, lastName, alias, password, this.imageFileExtension),
+            () => this.authService.register(firstName, lastName, alias, password, this.imageFileExtension),
             (user) => `/feed/${user.alias}`,
             this.rememberMe,
             'register user'
@@ -59,19 +44,19 @@ export class RegisterPresenter extends AuthPresenter {
 
     private handleImageFile = async (file: File | undefined) => {
         if (file) {
-            this.registerView.setImageUrl(URL.createObjectURL(file));
+            this.view.setImageUrl(URL.createObjectURL(file));
             const imageFileData = await this.parseImageFile(file);
             if (imageFileData) {
                 this.imageFileExtension = imageFileData.imageFileExtension;
-                this.registerView.setImageFileExtension(imageFileData.imageFileExtension);
+                this.view.setImageFileExtension(imageFileData.imageFileExtension);
             } else {
                 this.imageFileExtension = '';
-                this.registerView.setImageFileExtension('');
+                this.view.setImageFileExtension('');
             }
         } else {
-            this.registerView.setImageUrl('');
+            this.view.setImageUrl('');
             this.imageFileExtension = '';
-            this.registerView.setImageFileExtension('');
+            this.view.setImageFileExtension('');
         }
     };
 
