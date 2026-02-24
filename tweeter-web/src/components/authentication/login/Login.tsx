@@ -72,7 +72,7 @@ const Login = (props: Props) => {
             inputFieldFactory={inputFieldFactory}
             switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
             setRememberMe={setRememberMe}
-            submitButtonDisabled={checkSubmitButtonStatus}
+            submitButtonDisabled={() => checkSubmitButtonStatus()}
             isLoading={isLoading}
             submit={doLogin}
         />

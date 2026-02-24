@@ -4,15 +4,16 @@ import Login from './components/authentication/login/Login';
 import Register from './components/authentication/register/Register';
 import MainLayout from './components/mainLayout/MainLayout';
 import Toaster from './components/toaster/Toaster';
-import UserItemScroller from './components/mainLayout/UserItemScroller';
-import StatusItemScroller from './components/mainLayout/StatusItemScroller';
 import { useUserInfo } from './components/userInfo/UserHooks';
 import { FolloweePresenter } from './presenter/FolloweePresenter';
 import { FollowerPresenter } from './presenter/FollowerPresenter';
 import { PagedItemView } from './presenter/PagedItemPresenter';
 import { FeedItemsPresenter } from './presenter/FeedItemsPresenter';
-import { StoryItemsPresenter } from './presenter/StoryItemsPresenter';
 import { Status, User } from 'tweeter-shared';
+import { ItemScroller } from './components/mainLayout/ItemScroller';
+import StatusItem from './components/items/StatusItem';
+import { StoryItemsPresenter } from './presenter/StoryItemsPresenter';
+import UserItem from './components/items/UserItem';
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -39,10 +40,12 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="feed/:displayedUser"
                     element={
-                        <StatusItemScroller
+                        <ItemScroller
                             key={`feed-${displayedUser!.alias}`}
                             itemDescription="feed"
-                            featureURL={'/feed'}
+                            renderItem={(item: Status, index: number) => (
+                                <StatusItem key={index} item={item} featureURL={'/feed'} />
+                            )}
                             presenterFactory={(view: PagedItemView<Status>) => new FeedItemsPresenter(view)}
                         />
                     }
@@ -50,10 +53,12 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="story/:displayedUser"
                     element={
-                        <StatusItemScroller
+                        <ItemScroller
                             key={`story-${displayedUser!.alias}`}
                             itemDescription="story"
-                            featureURL={'/story'}
+                            renderItem={(item: Status, index: number) => (
+                                <StatusItem key={index} item={item} featureURL={'/story'} />
+                            )}
                             presenterFactory={(view: PagedItemView<Status>) => new StoryItemsPresenter(view)}
                         />
                     }
@@ -61,10 +66,12 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="followees/:displayedUser"
                     element={
-                        <UserItemScroller
+                        <ItemScroller
                             key={`followees-${displayedUser!.alias}`}
-                            itemDescription={'followees'}
-                            featureURL={'/followees'}
+                            itemDescription="followees"
+                            renderItem={(item: User, index: number) => (
+                                <UserItem key={index} user={item} featureURL={'/followees'} />
+                            )}
                             presenterFactory={(view: PagedItemView<User>) => new FolloweePresenter(view)}
                         />
                     }
@@ -72,10 +79,12 @@ const AuthenticatedRoutes = () => {
                 <Route
                     path="followers/:displayedUser"
                     element={
-                        <UserItemScroller
+                        <ItemScroller
                             key={`followers-${displayedUser!.alias}`}
-                            itemDescription={'followers'}
-                            featureURL={'/followers'}
+                            itemDescription="followers"
+                            renderItem={(item: User, index: number) => (
+                                <UserItem key={index} user={item} featureURL={'/followers'} />
+                            )}
                             presenterFactory={(view: PagedItemView<User>) => new FollowerPresenter(view)}
                         />
                     }

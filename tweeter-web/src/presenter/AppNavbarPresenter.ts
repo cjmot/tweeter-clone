@@ -8,21 +8,18 @@ export interface AppNavbarView extends MessageView {
 }
 
 export class AppNavbarPresenter extends Presenter<AppNavbarView> {
-    private readonly service: AuthService;
-
-    constructor(view: AppNavbarView) {
-        super(view);
-        this.service = new AuthService();
-    }
+    private readonly service = new AuthService();
 
     public logOut = async (authToken: AuthToken): Promise<void> => {
-        const loggingOutToastId = this.view.displayInfoMessage('Logging Out...', 0);
-
-        this.doFailureReportingOperation(async () => {
-            await this.service.logout(authToken);
-            this.view.deleteMessage(loggingOutToastId);
-            this.view.clearUserInfo();
-            this.view.navigateTo('/login');
-        }, 'log out user');
+        await this.doLoadingOperation(
+            this.view,
+            async () => {
+                await this.service.logout(authToken);
+                this.view.clearUserInfo();
+                this.view.navigateTo('/login');
+            },
+            'log out user',
+            'Logging Out...'
+        );
     };
 }

@@ -9,12 +9,7 @@ export interface AuthView extends View {
 }
 
 export abstract class AuthPresenter<T extends AuthView> extends Presenter<T> {
-    protected authService: AuthService;
-
-    constructor(view: T) {
-        super(view);
-        this.authService = new AuthService();
-    }
+    protected authService = new AuthService();
 
     protected async doAuth(
         authAction: () => Promise<[User, AuthToken]>,
@@ -22,11 +17,15 @@ export abstract class AuthPresenter<T extends AuthView> extends Presenter<T> {
         rememberMe: boolean,
         operationDescription: string
     ) {
-        this.doFailureReportingOperation(async () => {
-            this.view.setIsLoading(true);
-            const [user, authToken] = await authAction();
-            this.view.updateUserInfo(user, user, authToken, rememberMe);
-            this.view.navigateTo(getDestination(user));
-        }, operationDescription).finally(() => this.view.setIsLoading(false));
+        await this.doLoadingOperation(
+            this.view,
+            async () => {
+                const [user, authToken] = await authAction();
+                this.view.updateUserInfo(user, user, authToken, rememberMe);
+                this.view.navigateTo(getDestination(user));
+            },
+            operationDescription,
+            'Signing in...'
+        );
     }
 }

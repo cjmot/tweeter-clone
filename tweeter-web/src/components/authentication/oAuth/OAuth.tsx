@@ -1,13 +1,16 @@
 import { useRef } from 'react';
 import { useMessageActions } from '../../toaster/MessageHooks';
-import { OAuthPresenter, OAuthView } from '../../../presenter/OAuthPresenter';
+import { OAuthPresenter } from '../../../presenter/OAuthPresenter';
 import OAuthButton from './OAuthButton';
+import { MessageView } from '../../../presenter/Presenter';
 
 const OAuth = () => {
-    const { displayInfoMessage } = useMessageActions();
+    const { displayInfoMessage, displayErrorMessage, deleteMessage } = useMessageActions();
 
-    const view: OAuthView = {
+    const view: MessageView = {
         displayInfoMessage: displayInfoMessage,
+        displayErrorMessage: displayErrorMessage,
+        deleteMessage: deleteMessage,
     };
 
     const presenterRef = useRef<OAuthPresenter | null>(null);
