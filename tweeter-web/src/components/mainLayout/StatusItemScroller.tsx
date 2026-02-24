@@ -5,12 +5,13 @@ import { useParams } from 'react-router-dom';
 import StatusItem from '../statusItem/StatusItem';
 import { useMessageActions } from '../toaster/MessageHooks';
 import { useUserInfo } from '../userInfo/UserHooks';
-import { StatusItemsView, StatusItemsPresenter } from '../../presenter/StatusItemsPresenter';
+import { StatusItemsPresenter } from '../../presenter/StatusItemsPresenter';
+import { PagedItemPresenter, PagedItemView } from '../../presenter/PagedItemPresenter';
 
 interface Props {
     itemDescription: string;
     featureURL: string;
-    presenterFactory: (view: StatusItemsView) => StatusItemsPresenter;
+    presenterFactory: (view: PagedItemView<Status>) => StatusItemsPresenter;
 }
 
 const StatusItemScroller = (props: Props) => {
@@ -20,7 +21,7 @@ const StatusItemScroller = (props: Props) => {
     const { displayedUser, authToken } = useUserInfo();
     const { displayedUser: displayedUserAliasParam } = useParams();
 
-    const listener: StatusItemsView = {
+    const listener: PagedItemView<Status> = {
         addItems: (newItems: Status[]) => setItems((previousItems) => [...previousItems, ...newItems]),
         displayErrorMessage: displayErrorMessage,
     };
@@ -49,7 +50,7 @@ const StatusItemScroller = (props: Props) => {
     };
 
     const loadMoreItems = async () => {
-        presenterRef.current!.loadMoreItems(authToken!, displayedUser!.alias);
+        await presenterRef.current!.loadMoreItems(authToken!, displayedUser!.alias);
     };
 
     return (

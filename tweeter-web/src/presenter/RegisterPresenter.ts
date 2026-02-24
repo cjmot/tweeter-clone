@@ -1,12 +1,17 @@
 import { ChangeEvent } from 'react';
-import { AuthPresenter } from './AuthPresenter';
+import { AuthPresenter, AuthView } from './AuthPresenter';
 
 interface ImageFileData {
     imageBytes: Uint8Array;
     imageFileExtension: string;
 }
 
-export class RegisterPresenter extends AuthPresenter {
+export interface RegisterView extends AuthView {
+    setImageUrl: (imageUrl: string) => void;
+    setImageFileExtension: (imageFileExtension: string) => void;
+}
+
+export class RegisterPresenter extends AuthPresenter<RegisterView> {
     private imageFileExtension: string = '';
     private rememberMe: boolean = false;
 

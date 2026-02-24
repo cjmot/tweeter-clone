@@ -1,6 +1,6 @@
-import { AuthPresenter } from './AuthPresenter';
+import { AuthPresenter, AuthView } from './AuthPresenter';
 
-export class LoginPresenter extends AuthPresenter {
+export class LoginPresenter extends AuthPresenter<AuthView> {
     public doLogin = async (alias: string, password: string, rememberMe: boolean, originalUrl?: string) => {
         await this.doAuth(
             () => this.authService.login(alias, password),

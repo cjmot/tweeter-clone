@@ -17,7 +17,7 @@ export class UserNavigationPresenter extends Presenter<UserNavigationView> {
         clickedValue: string,
         featureURL: string
     ): Promise<void> => {
-        try {
+        this.doFailureReportingOperation(async () => {
             const alias = this.extractAlias(clickedValue);
             const toUser = await this.userService.getUser(authToken, alias);
 
@@ -25,9 +25,7 @@ export class UserNavigationPresenter extends Presenter<UserNavigationView> {
                 this.view.setDisplayedUser(toUser);
                 this.view.navigateTo(`${featureURL}/${toUser.alias}`);
             }
-        } catch (error) {
-            this.view.displayErrorMessage(`Failed to get user because of exception: ${error}`);
-        }
+        }, 'get user');
     };
 
     private extractAlias = (value: string): string => {

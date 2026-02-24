@@ -8,11 +8,11 @@ import UserItemScroller from './components/mainLayout/UserItemScroller';
 import StatusItemScroller from './components/mainLayout/StatusItemScroller';
 import { useUserInfo } from './components/userInfo/UserHooks';
 import { FolloweePresenter } from './presenter/FolloweePresenter';
-import { UserItemView } from './presenter/UserItemPresenter';
 import { FollowerPresenter } from './presenter/FollowerPresenter';
-import { StatusItemsView } from './presenter/StatusItemsPresenter';
+import { PagedItemView } from './presenter/PagedItemPresenter';
 import { FeedItemsPresenter } from './presenter/FeedItemsPresenter';
 import { StoryItemsPresenter } from './presenter/StoryItemsPresenter';
+import { Status, User } from 'tweeter-shared';
 
 const App = () => {
     const { currentUser, authToken } = useUserInfo();
@@ -43,7 +43,7 @@ const AuthenticatedRoutes = () => {
                             key={`feed-${displayedUser!.alias}`}
                             itemDescription="feed"
                             featureURL={'/feed'}
-                            presenterFactory={(view: StatusItemsView) => new FeedItemsPresenter(view)}
+                            presenterFactory={(view: PagedItemView<Status>) => new FeedItemsPresenter(view)}
                         />
                     }
                 />
@@ -54,7 +54,7 @@ const AuthenticatedRoutes = () => {
                             key={`story-${displayedUser!.alias}`}
                             itemDescription="story"
                             featureURL={'/story'}
-                            presenterFactory={(view: StatusItemsView) => new StoryItemsPresenter(view)}
+                            presenterFactory={(view: PagedItemView<Status>) => new StoryItemsPresenter(view)}
                         />
                     }
                 />
@@ -65,7 +65,7 @@ const AuthenticatedRoutes = () => {
                             key={`followees-${displayedUser!.alias}`}
                             itemDescription={'followees'}
                             featureURL={'/followees'}
-                            presenterFactory={(view: UserItemView) => new FolloweePresenter(view)}
+                            presenterFactory={(view: PagedItemView<User>) => new FolloweePresenter(view)}
                         />
                     }
                 />
@@ -76,7 +76,7 @@ const AuthenticatedRoutes = () => {
                             key={`followers-${displayedUser!.alias}`}
                             itemDescription={'followers'}
                             featureURL={'/followers'}
-                            presenterFactory={(view: UserItemView) => new FollowerPresenter(view)}
+                            presenterFactory={(view: PagedItemView<User>) => new FollowerPresenter(view)}
                         />
                     }
                 />

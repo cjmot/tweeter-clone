@@ -6,14 +6,12 @@ export interface AuthView extends View {
     setIsLoading: (isLoading: boolean) => void;
     updateUserInfo: (currentUser: User, displayedUser: User, authToken: AuthToken, remember: boolean) => void;
     navigateTo: (path: string) => void;
-    setImageUrl: (imageUrl: string) => void;
-    setImageFileExtension: (imageFileExtension: string) => void;
 }
 
-export abstract class AuthPresenter extends Presenter<AuthView> {
+export abstract class AuthPresenter<T extends AuthView> extends Presenter<T> {
     protected authService: AuthService;
 
-    constructor(view: AuthView) {
+    constructor(view: T) {
         super(view);
         this.authService = new AuthService();
     }
