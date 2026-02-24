@@ -16,7 +16,6 @@ export interface RegisterView extends AuthView {
 export class RegisterPresenter extends AuthPresenter {
     private readonly registerView: RegisterView;
     private readonly service: AuthService;
-    private imageBytes: Uint8Array = new Uint8Array();
     private imageFileExtension: string = '';
     private rememberMe: boolean = false;
 
@@ -27,15 +26,11 @@ export class RegisterPresenter extends AuthPresenter {
     }
 
     public doRegister = async (firstName: string, lastName: string, alias: string, password: string) => {
-        // Not needed now, but will be needed when you make the request to the server in milestone 3.
-        const imageStringBase64: string = Buffer.from(this.imageBytes).toString('base64');
-
         await this.doAuth(
-            () =>
-                this.service.register(firstName, lastName, alias, password, imageStringBase64, this.imageFileExtension),
+            () => this.service.register(firstName, lastName, alias, password, this.imageFileExtension),
             (user) => `/feed/${user.alias}`,
             this.rememberMe,
-            'Failed to register user because of exception'
+            'register user'
         );
     };
 
@@ -44,20 +39,17 @@ export class RegisterPresenter extends AuthPresenter {
     };
 
     private parseImageFile = async (file: File): Promise<ImageFileData | null> => {
-        try {
-            const imageFileExtension = this.getFileExtension(file);
+        let imageFileExtension: string | undefined = undefined;
+        await this.doFailureReportingOperation(async () => {
+            imageFileExtension = this.getFileExtension(file);
             if (!imageFileExtension) {
                 throw new Error('Image file must have a valid extension');
             }
+        }, 'parse image file');
 
-            const fileBuffer = await file.arrayBuffer();
-            const imageBytes = new Uint8Array(fileBuffer);
-
-            return { imageBytes, imageFileExtension };
-        } catch (error) {
-            this.view.displayErrorMessage(`Failed to process image file because of exception: ${error}`);
-            return null;
-        }
+        const fileBuffer = await file.arrayBuffer();
+        const imageBytes = new Uint8Array(fileBuffer);
+        return imageFileExtension ? { imageBytes, imageFileExtension } : null;
     };
 
     public handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -70,17 +62,14 @@ export class RegisterPresenter extends AuthPresenter {
             this.registerView.setImageUrl(URL.createObjectURL(file));
             const imageFileData = await this.parseImageFile(file);
             if (imageFileData) {
-                this.imageBytes = imageFileData.imageBytes;
                 this.imageFileExtension = imageFileData.imageFileExtension;
                 this.registerView.setImageFileExtension(imageFileData.imageFileExtension);
             } else {
-                this.imageBytes = new Uint8Array();
                 this.imageFileExtension = '';
                 this.registerView.setImageFileExtension('');
             }
         } else {
             this.registerView.setImageUrl('');
-            this.imageBytes = new Uint8Array();
             this.imageFileExtension = '';
             this.registerView.setImageFileExtension('');
         }

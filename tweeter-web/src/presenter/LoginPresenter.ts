@@ -14,7 +14,7 @@ export class LoginPresenter extends AuthPresenter {
             () => this.service.login(alias, password),
             (user) => (originalUrl ? originalUrl : `/feed/${user.alias}`),
             rememberMe,
-            'Failed to log user in because of exception'
+            'log in user'
         );
     };
 }

@@ -1,24 +1,19 @@
 import { AuthToken, Status, User } from 'tweeter-shared';
 import { UserService } from '../model.service/UserService';
+import { Presenter, View } from './Presenter';
 
-export interface StatusItemsView {
+export interface StatusItemsView extends View {
     addItems: (items: Status[]) => void;
-    displayErrorMessage: (message: string) => void;
 }
 
-export abstract class StatusItemsPresenter {
-    private readonly _view: StatusItemsView;
+export abstract class StatusItemsPresenter extends Presenter<StatusItemsView> {
     private _lastItem: Status | null = null;
     private _hasMoreItems: boolean = true;
     private userService: UserService;
 
     protected constructor(view: StatusItemsView) {
-        this._view = view;
+        super(view);
         this.userService = new UserService();
-    }
-
-    protected get view() {
-        return this._view;
     }
 
     protected get lastItem() {
@@ -38,7 +33,6 @@ export abstract class StatusItemsPresenter {
     }
 
     public async getUser(authToken: AuthToken, alias: string): Promise<User | null> {
-        // TODO: Replace with the result of calling server
         return this.userService.getUser(authToken, alias);
     }
 

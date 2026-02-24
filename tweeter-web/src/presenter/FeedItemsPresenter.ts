@@ -13,7 +13,7 @@ export class FeedItemsPresenter extends StatusItemsPresenter {
     }
 
     loadMoreItems = async (authToken: AuthToken, userAlias: string) => {
-        try {
+        this.doFailureReportingOperation(async () => {
             const [newItems, hasMore] = await this.statusService.loadMoreFeedItems(
                 authToken,
                 userAlias,
@@ -24,8 +24,6 @@ export class FeedItemsPresenter extends StatusItemsPresenter {
             this.hasMoreItems = hasMore;
             this.lastItem = newItems.length > 0 ? newItems[newItems.length - 1] : null;
             this.view.addItems(newItems);
-        } catch (error) {
-            this.view.displayErrorMessage(`Failed to load followees because of exception: ${error}`);
-        }
+        }, 'load followees');
     };
 }

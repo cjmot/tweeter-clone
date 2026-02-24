@@ -1,16 +1,8 @@
-export interface OAuthView {
-    displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => void;
-}
+import { Presenter, MessageView } from './Presenter';
 
-export class OAuthPresenter {
-    private readonly _view: OAuthView;
-
-    public constructor(view: OAuthView) {
-        this._view = view;
-    }
-
-    private get view() {
-        return this._view;
+export class OAuthPresenter extends Presenter<MessageView> {
+    public constructor(view: MessageView) {
+        super(view);
     }
 
     public displayOAuthNotImplementedMessage = (providerName: string) => {

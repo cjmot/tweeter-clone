@@ -1,18 +1,9 @@
 import { Toast } from '../components/toaster/Toast';
+import { MessageView, Presenter } from './Presenter';
 
-export interface ToasterView {
-    deleteMessage: (messageId: string) => void;
-}
-
-export class ToasterPresenter {
-    private readonly _view: ToasterView;
-
-    public constructor(view: ToasterView) {
-        this._view = view;
-    }
-
-    private get view() {
-        return this._view;
+export class ToasterPresenter extends Presenter<MessageView> {
+    public constructor(view: MessageView) {
+        super(view);
     }
 
     public deleteExpiredToasts = (messageList: Toast[]) => {

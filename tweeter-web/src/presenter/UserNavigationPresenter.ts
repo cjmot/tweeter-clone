@@ -1,23 +1,19 @@
 import { AuthToken, User } from 'tweeter-shared';
 import { UserService } from '../model.service/UserService';
+import { Presenter, View } from './Presenter';
 
-export interface UserNavigationView {
+export interface UserNavigationView extends View {
     setDisplayedUser: (user: User) => void;
     navigateTo: (path: string) => void;
     displayErrorMessage: (message: string) => void;
 }
 
-export class UserNavigationPresenter {
-    private readonly _view: UserNavigationView;
-    private readonly service: UserService;
+export class UserNavigationPresenter extends Presenter<UserNavigationView> {
+    private readonly userService: UserService;
 
     public constructor(view: UserNavigationView) {
-        this._view = view;
-        this.service = new UserService();
-    }
-
-    private get view() {
-        return this._view;
+        super(view);
+        this.userService = new UserService();
     }
 
     public navigateToUser = async (
@@ -28,7 +24,7 @@ export class UserNavigationPresenter {
     ): Promise<void> => {
         try {
             const alias = this.extractAlias(clickedValue);
-            const toUser = await this.service.getUser(authToken, alias);
+            const toUser = await this.userService.getUser(authToken, alias);
 
             if (toUser && !toUser.equals(displayedUser)) {
                 this.view.setDisplayedUser(toUser);

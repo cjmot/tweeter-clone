@@ -17,7 +17,6 @@ export class AuthService {
         lastName: string,
         alias: string,
         password: string,
-        imageStringBase64: string,
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
         // TODO: Replace with the result of calling the server
