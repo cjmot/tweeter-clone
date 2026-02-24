@@ -20,21 +20,29 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
     };
 
     followUser = async (authToken: AuthToken, displayedUser: User) => {
-        this.doFailureReportingOperation(async () => {
-            const [followerCount, followeeCount] = await this.userService.follow(authToken, displayedUser);
-            this.view.setIsFollower(true);
-            this.view.setFollowerCount(followerCount);
-            this.view.setFolloweeCount(followeeCount);
-        }, 'follow user');
+        await this.updateFollowStatus(authToken, displayedUser, true, 'follow user');
     };
 
     unfollowUser = async (authToken: AuthToken, displayedUser: User) => {
+        await this.updateFollowStatus(authToken, displayedUser, false, 'unfollow user');
+    };
+
+    private updateFollowStatus = async (
+        authToken: AuthToken,
+        displayedUser: User,
+        isFollowing: boolean,
+        operationDescription: string
+    ) => {
         this.doFailureReportingOperation(async () => {
-            const [followerCount, followeeCount] = await this.userService.unfollow(authToken, displayedUser);
-            this.view.setIsFollower(true);
+            const operation = isFollowing
+                ? () => this.userService.follow(authToken, displayedUser)
+                : () => this.userService.unfollow(authToken, displayedUser);
+
+            const [followerCount, followeeCount] = await operation();
+            this.view.setIsFollower(isFollowing);
             this.view.setFollowerCount(followerCount);
             this.view.setFolloweeCount(followeeCount);
-        }, 'unfollow user');
+        }, operationDescription);
     };
 
     private setIsFollowerStatus = async (authToken: AuthToken, currentUser: User, displayedUser: User) => {
