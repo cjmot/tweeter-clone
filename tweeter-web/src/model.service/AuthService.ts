@@ -1,12 +1,13 @@
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { AuthToken, FakeData, User } from 'tweeter-shared';
+import { Service } from './Service';
 
-export class AuthService {
+export class AuthService implements Service {
     public async login(alias: string, password: string): Promise<[User, AuthToken]> {
         // TODO: Replace with the result of calling the server
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
-            throw new Error("Invalid alias or password");
+            throw new Error('Invalid alias or password');
         }
 
         return [user, FakeData.instance.authToken];
@@ -17,14 +18,13 @@ export class AuthService {
         lastName: string,
         alias: string,
         password: string,
-        imageStringBase64: string,
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
         // TODO: Replace with the result of calling the server
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
-            throw new Error("Invalid registration");
+            throw new Error('Invalid registration');
         }
 
         return [user, FakeData.instance.authToken];

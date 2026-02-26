@@ -1,20 +1,12 @@
-import { AuthService } from "../model.service/AuthService";
-import { AuthPresenter, AuthView } from "./AuthPresenter";
+import { AuthPresenter, AuthView } from './AuthPresenter';
 
-export class LoginPresenter extends AuthPresenter {
-    private readonly service: AuthService;
-
-    public constructor(view: AuthView) {
-        super(view);
-        this.service = new AuthService();
-    }
-
+export class LoginPresenter extends AuthPresenter<AuthView> {
     public doLogin = async (alias: string, password: string, rememberMe: boolean, originalUrl?: string) => {
         await this.doAuth(
-            () => this.service.login(alias, password),
+            () => this.authService.login(alias, password),
             (user) => (originalUrl ? originalUrl : `/feed/${user.alias}`),
             rememberMe,
-            "Failed to log user in because of exception"
+            'log in user'
         );
     };
 }

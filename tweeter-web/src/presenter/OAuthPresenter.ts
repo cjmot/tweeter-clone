@@ -1,23 +1,7 @@
-export interface OAuthView {
-    displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => void;
-}
+import { Presenter, MessageView } from './Presenter';
 
-export class OAuthPresenter {
-    private readonly _view: OAuthView;
-
-    public constructor(view: OAuthView) {
-        this._view = view;
-    }
-
-    private get view() {
-        return this._view;
-    }
-
+export class OAuthPresenter extends Presenter<MessageView> {
     public displayOAuthNotImplementedMessage = (providerName: string) => {
-        this.view.displayInfoMessage(
-            `${providerName} registration is not implemented.`,
-            3000,
-            "text-white bg-primary"
-        );
+        this.view.displayInfoMessage(`${providerName} registration is not implemented.`, 3000, 'text-white bg-primary');
     };
 }

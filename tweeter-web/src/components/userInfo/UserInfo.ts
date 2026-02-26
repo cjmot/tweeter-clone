@@ -1,4 +1,4 @@
-import { User, AuthToken } from "tweeter-shared";
+import { User, AuthToken } from 'tweeter-shared';
 
 export interface UserInfo {
     currentUser: User | null;

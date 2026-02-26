@@ -1,7 +1,7 @@
-import Post from "./Post";
-import { Status } from "tweeter-shared";
-import { Link } from "react-router-dom";
-import { useUserNavigation } from "../appNavbar/UserNavigationHook";
+import Post from './Post';
+import { Status } from 'tweeter-shared';
+import { Link } from 'react-router-dom';
+import { useUserNavigation } from '../appNavbar/UserNavigationHook';
 
 interface Props {
     item: Status;
@@ -15,19 +15,14 @@ const StatusItem = ({ item, featureURL }: Props) => {
             <div className="container px-0">
                 <div className="row mx-0 px-0">
                     <div className="col-auto p-3">
-                        <img
-                            src={item.user.imageUrl}
-                            className="img-fluid"
-                            width="80"
-                            alt="Posting user"
-                        />
+                        <img src={item.user.imageUrl} className="img-fluid" width="80" alt="Posting user" />
                     </div>
                     <div className="col">
                         <h2>
                             <b>
                                 {item.user.firstName} {item.user.lastName}
-                            </b>{" "}
-                            -{" "}
+                            </b>{' '}
+                            -{' '}
                             <Link
                                 to={`/${featureURL}/${item.user.alias}`}
                                 onClick={(event) => navigateToUser(event, featureURL)}

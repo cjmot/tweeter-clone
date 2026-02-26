@@ -1,38 +1,31 @@
-import { AuthToken, User } from "tweeter-shared";
+import { AuthToken, User } from 'tweeter-shared';
+import { Presenter, View } from './Presenter';
+import { AuthService } from '../model.service/AuthService';
 
-export interface AuthView {
+export interface AuthView extends View {
     setIsLoading: (isLoading: boolean) => void;
     updateUserInfo: (currentUser: User, displayedUser: User, authToken: AuthToken, remember: boolean) => void;
     navigateTo: (path: string) => void;
-    displayErrorMessage: (message: string) => void;
 }
 
-export abstract class AuthPresenter {
-    private readonly _view: AuthView;
-
-    protected constructor(view: AuthView) {
-        this._view = view;
-    }
-
-    protected get view() {
-        return this._view;
-    }
+export abstract class AuthPresenter<T extends AuthView> extends Presenter<T> {
+    protected authService = new AuthService();
 
     protected async doAuth(
         authAction: () => Promise<[User, AuthToken]>,
         getDestination: (user: User) => string,
         rememberMe: boolean,
-        failureMessage: string
+        operationDescription: string
     ) {
-        try {
-            this.view.setIsLoading(true);
-            const [user, authToken] = await authAction();
-            this.view.updateUserInfo(user, user, authToken, rememberMe);
-            this.view.navigateTo(getDestination(user));
-        } catch (error) {
-            this.view.displayErrorMessage(`${failureMessage}: ${error}`);
-        } finally {
-            this.view.setIsLoading(false);
-        }
+        await this.doLoadingOperation(
+            this.view,
+            async () => {
+                const [user, authToken] = await authAction();
+                this.view.updateUserInfo(user, user, authToken, rememberMe);
+                this.view.navigateTo(getDestination(user));
+            },
+            operationDescription,
+            'Signing in...'
+        );
     }
 }

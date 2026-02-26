@@ -1,19 +1,19 @@
-import "./PostStatus.css";
-import { useState, MouseEvent, useRef } from "react";
-import { useMessageActions } from "../toaster/MessageHooks";
-import { useUserInfo } from "../userInfo/UserHooks";
-import { PostStatusPresenter, PostStatusView } from "../../presenter/PostStatusPresenter";
+import './PostStatus.css';
+import { useState, MouseEvent, useRef } from 'react';
+import { useMessageActions } from '../toaster/MessageHooks';
+import { useUserInfo } from '../userInfo/UserHooks';
+import { PostStatusPresenter, PostStatusView } from '../../presenter/PostStatusPresenter';
 
 const PostStatus = () => {
     const { displayInfoMessage, displayErrorMessage, deleteMessage } = useMessageActions();
 
     const { currentUser, authToken } = useUserInfo();
-    const [post, setPost] = useState("");
+    const [post, setPost] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const view: PostStatusView = {
         setIsLoading: setIsLoading,
-        clearPost: () => setPost(""),
+        clearPost: () => setPost(''),
         displayInfoMessage: displayInfoMessage,
         displayErrorMessage: displayErrorMessage,
         deleteMessage: deleteMessage,
@@ -31,7 +31,7 @@ const PostStatus = () => {
 
     const clearPost = (event: React.MouseEvent) => {
         event.preventDefault();
-        setPost("");
+        setPost('');
     };
 
     const checkButtonStatus: () => boolean = () => {
@@ -58,15 +58,11 @@ const PostStatus = () => {
                     className="btn btn-md btn-primary me-1"
                     type="button"
                     disabled={checkButtonStatus()}
-                    style={{ width: "8em" }}
+                    style={{ width: '8em' }}
                     onClick={submitPost}
                 >
                     {isLoading ? (
-                        <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                        ></span>
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     ) : (
                         <div>Post Status</div>
                     )}

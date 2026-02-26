@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useState } from "react";
-import { Toast, ToastType, makeToast } from "./Toast";
-import PropTypes from "prop-types";
-import { ToastListContext, ToastActionsContext } from "./ToastContexts";
+import { useCallback, useMemo, useState } from 'react';
+import { Toast, ToastType, makeToast } from './Toast';
+import PropTypes from 'prop-types';
+import { ToastListContext, ToastActionsContext } from './ToastContexts';
 
 interface Props {
     children: React.ReactNode;
@@ -51,9 +51,7 @@ const ToastInfoProvider: React.FC<Props> = ({ children }) => {
 
     return (
         <ToastListContext.Provider value={toastList}>
-            <ToastActionsContext.Provider value={toastActions}>
-                {children}
-            </ToastActionsContext.Provider>
+            <ToastActionsContext.Provider value={toastActions}>{children}</ToastActionsContext.Provider>
         </ToastListContext.Provider>
     );
 };

@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
-import { useRef } from "react";
-import { useUserInfo, useUserInfoActions } from "../userInfo/UserHooks";
-import { useMessageActions } from "../toaster/MessageHooks";
-import { MouseEvent } from "react";
-import { UserNavigationPresenter, UserNavigationView } from "../../presenter/UserNavigationPresenter";
+import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
+import { useUserInfo, useUserInfoActions } from '../userInfo/UserHooks';
+import { useMessageActions } from '../toaster/MessageHooks';
+import { MouseEvent } from 'react';
+import { UserNavigationPresenter, UserNavigationView } from '../../presenter/UserNavigationPresenter';
 
 interface UserNavigation {
     navigateToUser: (event: MouseEvent, featureURL: string) => Promise<void>;
