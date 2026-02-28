@@ -10,7 +10,7 @@ export interface MessageView extends View {
 export abstract class Presenter<V extends View> {
     private _view: V;
 
-    constructor(view: V) {
+    protected constructor(view: V) {
         this._view = view;
     }
     protected get view() {
@@ -21,7 +21,9 @@ export abstract class Presenter<V extends View> {
         try {
             await operation();
         } catch (error) {
-            this.view.displayErrorMessage(`Failed to ${operationDescription} because of exception: ${error}`);
+            this.view.displayErrorMessage(
+                `Failed to ${operationDescription} because of exception: ${(error as Error).message}`
+            );
         }
     }
 

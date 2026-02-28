@@ -9,7 +9,16 @@ export interface AuthView extends View {
 }
 
 export abstract class AuthPresenter<T extends AuthView> extends Presenter<T> {
-    protected authService = new AuthService();
+    protected _authService: AuthService;
+
+    public constructor(view: T) {
+        super(view);
+        this._authService = new AuthService();
+    }
+
+    public get authService() {
+        return this._authService;
+    }
 
     protected async doAuth(
         authAction: () => Promise<[User, AuthToken]>,

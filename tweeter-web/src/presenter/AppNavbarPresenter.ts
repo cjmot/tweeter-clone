@@ -8,7 +8,16 @@ export interface AppNavbarView extends MessageView {
 }
 
 export class AppNavbarPresenter extends Presenter<AppNavbarView> {
-    private readonly service = new AuthService();
+    private readonly _service;
+
+    public constructor(view: AppNavbarView) {
+        super(view);
+        this._service = new AuthService();
+    }
+
+    public get service(): AuthService {
+        return this._service;
+    }
 
     public logOut = async (authToken: AuthToken): Promise<void> => {
         await this.doLoadingOperation(
