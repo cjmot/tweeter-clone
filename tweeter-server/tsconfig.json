@@ -1,19 +1,11 @@
 {
     "compilerOptions": {
+        "target": "ES2022",
+        "module": "commonjs",
         "outDir": "./dist",
-        "module": "nodenext",
-        "target": "es2022",
-        "types": [],
-        "sourceMap": true,
-        "declaration": true,
-        "declarationMap": true,
-        "noUncheckedIndexedAccess": true,
-        "exactOptionalPropertyTypes": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "jsx": "react-jsx",
-        "isolatedModules": true,
-        "noUncheckedSideEffectImports": true,
-        "moduleDetection": "force",
         "skipLibCheck": true
     }
 }
