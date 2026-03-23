@@ -105,20 +105,19 @@ Resources:
           # Endpoint definitions
           #
 
-#          /auth/login:  ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
+          /auth/login:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${authLoginHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
 #          /auth/register:  ##### TODO: Set endpoint URL
 #            post:
 #              consumes: *commonConsumes
@@ -169,8 +168,7 @@ Resources:
                 type: aws
                 httpMethod: POST
                 uri:
-                  ##### The function name must agree with the "Web API Lambda functions" section below.
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFollowees.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFolloweesHandler.Arn}/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -183,7 +181,7 @@ Resources:
                 type: aws
                 httpMethod: POST
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFollowers.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFollowersHandler.Arn}/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -330,10 +328,24 @@ Resources:
   #
 
   ##### It must match the function name in the "Endpoint definitons" section above.
-  getFollowees:
+  authLoginHandler:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: getFollowees
+      FunctionName: authLogin
+      Handler: lambda/auth/AuthLoginLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /auth/login
+            Method: POST
+
+  getFolloweesHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getFolloweesHandler
       ##### TODO: Modify Handler property to match your code. This identifies the exact function that the lambda should run.
       Handler: lambda/follow/GetFolloweesLambda.handler
       Policies: *commonPolicies
@@ -346,10 +358,10 @@ Resources:
             Path: /followees/get
             Method: POST
 
-  getFollowers:
+  getFollowersHandler:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: getFollowers
+      FunctionName: getFollowersHandler
       Handler: lambda/follow/GetFollowersLambda.handler
       Policies: *commonPolicies
       Events:
@@ -360,6 +372,48 @@ Resources:
             ##### It must match the URL in the "Endpoint definitions" section above.
             Path: /followers/get
             Method: POST
+
+#  userCreateFunction:  ##### TODO: Set function name
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: userCreateFunction  ##### TODO: Set function name
+#      Handler: handlers/users/UserCreateHandler.userCreateHandler  ##### TODO: Set Handler
+#      Policies: *commonPolicies
+#      Events:
+#        PostApi:
+#          Type: Api
+#          Properties:
+#            RestApiId: !Ref tweeterApi
+#            Path: /user/create  ##### TODO: Set Path
+#            Method: POST
+
+#  userCreateFunction:  ##### TODO: Set function name
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: userCreateFunction  ##### TODO: Set function name
+#      Handler: handlers/users/UserCreateHandler.userCreateHandler  ##### TODO: Set Handler
+#      Policies: *commonPolicies
+#      Events:
+#        PostApi:
+#          Type: Api
+#          Properties:
+#            RestApiId: !Ref tweeterApi
+#            Path: /user/create  ##### TODO: Set Path
+#            Method: POST
+
+#  userCreateFunction:  ##### TODO: Set function name
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      FunctionName: userCreateFunction  ##### TODO: Set function name
+#      Handler: handlers/users/UserCreateHandler.userCreateHandler  ##### TODO: Set Handler
+#      Policies: *commonPolicies
+#      Events:
+#        PostApi:
+#          Type: Api
+#          Properties:
+#            RestApiId: !Ref tweeterApi
+#            Path: /user/create  ##### TODO: Set Path
+#            Method: POST
 
 #  userCreateFunction:  ##### TODO: Set function name
 #    Type: AWS::Serverless::Function
