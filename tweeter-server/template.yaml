@@ -105,6 +105,62 @@ Resources:
           # Endpoint definitions
           #
 
+#          /auth/login:  ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /auth/register:  ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /auth/logout: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /user/get: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
           /followees/get:
             post:
               consumes: *commonConsumes
@@ -118,8 +174,8 @@ Resources:
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
-
-#          /user/create:  ##### TODO: Set endpoint URL
+#
+#          /followers/get: ##### TODO: Set endpoint URL
 #            post:
 #              consumes: *commonConsumes
 #              produces: *commonProduces
@@ -132,10 +188,118 @@ Resources:
 #                requestTemplates: *commonRequestTemplates
 #                responses: *commonAmazonResponses
 #              responses: *commonSwaggerResponses
-
-            #
-            # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
-            #
+#
+#          /follow/add: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /follow/remove: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /follow/is_follower: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /follow/count/followers: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /follow/count/followees: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /story/get: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /feed/get: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
+#
+#          /status/create: ##### TODO: Set endpoint URL
+#            post:
+#              consumes: *commonConsumes
+#              produces: *commonProduces
+#              x-amazon-apigateway-integration:
+#                type: aws
+#                httpMethod: POST
+#                uri:
+#                  ##### TODO: Set function name
+#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
+#                requestTemplates: *commonRequestTemplates
+#                responses: *commonAmazonResponses
+#              responses: *commonSwaggerResponses
 
 
   #
