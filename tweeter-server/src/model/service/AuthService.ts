@@ -9,7 +9,10 @@ export class AuthService {
             throw new Error('Invalid alias or password');
         }
 
-        return [user.dto, FakeData.instance.authToken];
+        return [user.dto, {
+            token: FakeData.instance.authToken.token,
+            timestamp: FakeData.instance.authToken.timestamp,
+        }];
     }
 
     public async register(
@@ -26,7 +29,10 @@ export class AuthService {
             throw new Error('Invalid registration');
         }
 
-        return [user.dto, FakeData.instance.authToken];
+        return [user.dto, {
+            token: FakeData.instance.authToken.token,
+            timestamp: FakeData.instance.authToken.timestamp,
+        }];
     }
 
     public async logout(authToken: AuthTokenDto): Promise<void> {

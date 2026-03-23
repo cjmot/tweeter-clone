@@ -118,20 +118,19 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
-#          /auth/register:  ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
+          /auth/register:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${authRegisterHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
 #          /auth/logout: ##### TODO: Set endpoint URL
 #            post:
 #              consumes: *commonConsumes
@@ -340,6 +339,20 @@ Resources:
           Properties:
             RestApiId: !Ref tweeterApi
             Path: /auth/login
+            Method: POST
+            
+  authRegisterHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: authRegister
+      Handler: lambda/auth/AuthRegisterLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /auth/register
             Method: POST
 
   getFolloweesHandler:
