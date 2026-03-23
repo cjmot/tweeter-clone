@@ -174,20 +174,19 @@ Resources:
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
-#
-#          /followers/get: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
+
+          /followers/get:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFollowers.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
 #
 #          /follow/add: ##### TODO: Set endpoint URL
 #            post:
@@ -345,6 +344,21 @@ Resources:
             RestApiId: !Ref tweeterApi
             ##### It must match the URL in the "Endpoint definitions" section above.
             Path: /followees/get
+            Method: POST
+
+  getFollowers:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getFollowers
+      Handler: lambda/follow/GetFollowersLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            ##### It must match the URL in the "Endpoint definitions" section above.
+            Path: /followers/get
             Method: POST
 
 #  userCreateFunction:  ##### TODO: Set function name
