@@ -34,17 +34,21 @@ export class UserService {
         return [followerCount, followeeCount];
     }
 
-    public async getFollowerCount(authToken: AuthToken, user: User): Promise<number> {
+    public async getFollowerCount(authToken: string, userAlias: string): Promise<number> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getFollowerCount(user.alias);
+        return FakeData.instance.getFollowerCount(userAlias);
     }
 
-    public async getFolloweeCount(authToken: AuthToken, user: User): Promise<number> {
+    public async getFolloweeCount(authToken: string, userAlias: string): Promise<number> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getFolloweeCount(user.alias);
+        return FakeData.instance.getFolloweeCount(userAlias);
     }
 
-    public async getIsFollowerStatus(authToken: AuthToken, user: User, selectedUser: User): Promise<boolean> {
+    public async getIsFollowerStatus(
+        authToken: string,
+        userAlias: string,
+        selectedUserAlias: string
+    ): Promise<boolean> {
         // TODO: Replace with the result of calling server
         return FakeData.instance.isFollower();
     }

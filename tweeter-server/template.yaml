@@ -210,48 +210,45 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
-#          /follow/is_follower: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
-#          /follow/count/followers: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
-#          /follow/count/followees: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
+          /follow/is_follower:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getIsFollowerHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /follow/count/followers:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFollowerCountHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /follow/count/followees:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFolloweeCountHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
 #          /story/get: ##### TODO: Set endpoint URL
 #            post:
 #              consumes: *commonConsumes
@@ -400,7 +397,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: addFollowHandler
-      Handler: lambda/follow/AddFollowLambda.handler
+      Handler: lambda/user/AddFollowLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -414,7 +411,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: removeFollowHandler
-      Handler: lambda/follow/RemoveFollowLambda.handler
+      Handler: lambda/user/RemoveFollowLambda.handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -422,6 +419,48 @@ Resources:
           Properties:
             RestApiId: !Ref tweeterApi
             Path: /follow/remove
+            Method: POST
+
+  getIsFollowerHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getIsFollowerHandler
+      Handler: lambda/user/GetIsFollowerLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follow/is_follower
+            Method: POST
+
+  getFollowerCountHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getFollowerCountHandler
+      Handler: lambda/user/GetFollowerCountLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follow/count/followers
+            Method: POST
+
+  getFolloweeCountHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getFolloweeCountHandler
+      Handler: lambda/user/GetFolloweeCountLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follow/count/followees
             Method: POST
 
 #  userCreateFunction:  ##### TODO: Set function name
