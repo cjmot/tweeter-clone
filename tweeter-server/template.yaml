@@ -131,19 +131,18 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
-#          /auth/logout: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
+          /auth/logout:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${authLogoutHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
 #
 #          /user/get: ##### TODO: Set endpoint URL
 #            post:
@@ -184,35 +183,33 @@ Resources:
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
-#
-#          /follow/add: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
-#          /follow/remove: ##### TODO: Set endpoint URL
-#            post:
-#              consumes: *commonConsumes
-#              produces: *commonProduces
-#              x-amazon-apigateway-integration:
-#                type: aws
-#                httpMethod: POST
-#                uri:
-#                  ##### TODO: Set function name
-#                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-#                requestTemplates: *commonRequestTemplates
-#                responses: *commonAmazonResponses
-#              responses: *commonSwaggerResponses
-#
+
+          /follow/add:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${addFollowHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /follow/remove:
+            post:
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${removeFollowHandler.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
 #          /follow/is_follower: ##### TODO: Set endpoint URL
 #            post:
 #              consumes: *commonConsumes
@@ -355,11 +352,24 @@ Resources:
             Path: /auth/register
             Method: POST
 
+  authLogoutHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: authLogout
+      Handler: lambda/auth/AuthLogoutLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /auth/logout
+            Method: POST
+
   getFolloweesHandler:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: getFolloweesHandler
-      ##### TODO: Modify Handler property to match your code. This identifies the exact function that the lambda should run.
       Handler: lambda/follow/GetFolloweesLambda.handler
       Policies: *commonPolicies
       Events:
@@ -384,6 +394,34 @@ Resources:
             RestApiId: !Ref tweeterApi
             ##### It must match the URL in the "Endpoint definitions" section above.
             Path: /followers/get
+            Method: POST
+
+  addFollowHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: addFollowHandler
+      Handler: lambda/follow/AddFollowLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follow/add
+            Method: POST
+
+  removeFollowHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: removeFollowHandler
+      Handler: lambda/follow/RemoveFollowLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follow/remove
             Method: POST
 
 #  userCreateFunction:  ##### TODO: Set function name

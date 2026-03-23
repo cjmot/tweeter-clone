@@ -1,0 +1,51 @@
+import { AuthToken, FakeData, User, UserDto } from 'tweeter-shared';
+
+export class UserService {
+    public async getUser(authToken: AuthToken, alias: string): Promise<User | null> {
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.findUserByAlias(alias);
+    }
+
+    public async unfollow(
+        authToken: string,
+        userToUnfollow: UserDto
+    ): Promise<[followerCount: number, followeeCount: number]> {
+        // Pause so we can see the unfollow message. Remove when connected to the server
+        await new Promise((f) => setTimeout(f, 2000));
+
+        // TODO: Call the server
+        const followerCount = await FakeData.instance.getFollowerCount(userToUnfollow.alias);
+        const followeeCount = await FakeData.instance.getFolloweeCount(userToUnfollow.alias);
+
+        return [followerCount, followeeCount];
+    }
+
+    public async follow(
+        authToken: string,
+        userToFollow: UserDto
+    ): Promise<[followerCount: number, followeeCount: number]> {
+        // Pause so we can see the follow message. Remove when connected to the server
+        await new Promise((f) => setTimeout(f, 2000));
+
+        // TODO: Call the server
+        const followerCount = await FakeData.instance.getFollowerCount(userToFollow.alias);
+        const followeeCount = await FakeData.instance.getFolloweeCount(userToFollow.alias);
+
+        return [followerCount, followeeCount];
+    }
+
+    public async getFollowerCount(authToken: AuthToken, user: User): Promise<number> {
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.getFollowerCount(user.alias);
+    }
+
+    public async getFolloweeCount(authToken: AuthToken, user: User): Promise<number> {
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.getFolloweeCount(user.alias);
+    }
+
+    public async getIsFollowerStatus(authToken: AuthToken, user: User, selectedUser: User): Promise<boolean> {
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.isFollower();
+    }
+}
