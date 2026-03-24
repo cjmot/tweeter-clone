@@ -1,4 +1,3 @@
-export interface UserRequest {
-    readonly token: string;
-    readonly userAlias: string;
-}
+import { UserAliasRequest } from './TweeterRequest';
+
+export interface UserRequest extends UserAliasRequest {}

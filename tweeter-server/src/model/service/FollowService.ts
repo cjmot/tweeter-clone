@@ -2,7 +2,7 @@ import { FakeData, User, UserDto } from 'tweeter-shared';
 
 export class FollowService {
     public async loadMoreFollowees(
-        authToken: string,
+        token: string,
         userAlias: string,
         pageSize: number,
         lastItem: UserDto | null
@@ -12,7 +12,7 @@ export class FollowService {
     }
 
     public async loadMoreFollowers(
-        authToken: string,
+        token: string,
         userAlias: string,
         pageSize: number,
         lastItem: UserDto | null

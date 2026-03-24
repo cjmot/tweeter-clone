@@ -1,5 +1,5 @@
-export interface IsFollowerRequest {
-    readonly token: string;
-    readonly userAlias: string;
+import { UserAliasRequest } from './TweeterRequest';
+
+export interface IsFollowerRequest extends UserAliasRequest {
     readonly selectedUserAlias: string;
 }

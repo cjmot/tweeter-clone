@@ -1,8 +1,8 @@
-import { FakeData, Status, StatusDto, User } from 'tweeter-shared';
+import { FakeData, Status, StatusDto } from 'tweeter-shared';
 
 export class StatusService {
     public async loadMoreStoryItems(
-        authToken: string,
+        token: string,
         userAlias: string,
         pageSize: number,
         lastStoryItem: StatusDto | null
@@ -12,7 +12,7 @@ export class StatusService {
     }
 
     public async loadMoreFeedItems(
-        authToken: string,
+        token: string,
         userAlias: string,
         pageSize: number,
         lastFeedItem: StatusDto | null
@@ -21,7 +21,7 @@ export class StatusService {
         return this.getFakeData(lastFeedItem, pageSize);
     }
 
-    public async postStatus(authToken: string, newStatus: StatusDto): Promise<void> {
+    public async postStatus(token: string, newStatus: StatusDto): Promise<void> {
         // Pause so we can see the posting message. Remove when connected to the server
         await new Promise((f) => setTimeout(f, 2000));
 
@@ -29,28 +29,9 @@ export class StatusService {
     }
 
     private async getFakeData(lastItem: StatusDto | null, pageSize: number): Promise<[StatusDto[], boolean]> {
-        const lastStatus =
-            lastItem == null
-                ? null
-                : new Status(
-                      lastItem.post,
-                      new User(
-                          lastItem.user.firstName,
-                          lastItem.user.lastName,
-                          lastItem.user.alias,
-                          lastItem.user.imageUrl
-                      ),
-                      lastItem.timestamp
-                  );
+        const lastStatus = Status.fromDto(lastItem);
 
         const [statuses, hasMore] = FakeData.instance.getPageOfStatuses(lastStatus, pageSize);
-        return [
-            statuses.map((status) => ({
-                post: status.post,
-                user: status.user.dto,
-                timestamp: status.timestamp,
-            })),
-            hasMore,
-        ];
+        return [statuses.map((status) => status.dto), hasMore];
     }
 }

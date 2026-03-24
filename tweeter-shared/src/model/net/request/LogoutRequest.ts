@@ -1,5 +1,3 @@
-import { AuthTokenDto } from '../../dto/AuthTokenDto';
+import { TokenRequest } from './TweeterRequest';
 
-export interface LogoutRequest {
-    readonly authToken: AuthTokenDto;
-}
+export interface LogoutRequest extends TokenRequest {}

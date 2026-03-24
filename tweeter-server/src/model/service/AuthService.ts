@@ -9,10 +9,7 @@ export class AuthService {
             throw new Error('Invalid alias or password');
         }
 
-        return [user.dto, {
-            token: FakeData.instance.authToken.token,
-            timestamp: FakeData.instance.authToken.timestamp,
-        }];
+        return [user.dto, FakeData.instance.authToken.dto];
     }
 
     public async register(
@@ -29,13 +26,10 @@ export class AuthService {
             throw new Error('Invalid registration');
         }
 
-        return [user.dto, {
-            token: FakeData.instance.authToken.token,
-            timestamp: FakeData.instance.authToken.timestamp,
-        }];
+        return [user.dto, FakeData.instance.authToken.dto];
     }
 
-    public async logout(authToken: AuthTokenDto): Promise<void> {
+    public async logout(token: string): Promise<void> {
         // Pause so we can see the logging out message. Delete when the call to the server is implemented.
         await new Promise((res) => setTimeout(res, 1000));
     }

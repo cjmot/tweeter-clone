@@ -1,14 +1,14 @@
 import { FakeData, UserDto } from 'tweeter-shared';
 
 export class UserService {
-    public async getUser(authToken: string, alias: string): Promise<UserDto | null> {
+    public async getUser(token: string, alias: string): Promise<UserDto | null> {
         // TODO: Replace with the result of calling server
         const user = FakeData.instance.findUserByAlias(alias);
         return user == null ? null : user.dto;
     }
 
     public async unfollow(
-        authToken: string,
+        token: string,
         userToUnfollow: UserDto
     ): Promise<[followerCount: number, followeeCount: number]> {
         // Pause so we can see the unfollow message. Remove when connected to the server
@@ -22,7 +22,7 @@ export class UserService {
     }
 
     public async follow(
-        authToken: string,
+        token: string,
         userToFollow: UserDto
     ): Promise<[followerCount: number, followeeCount: number]> {
         // Pause so we can see the follow message. Remove when connected to the server
@@ -35,18 +35,18 @@ export class UserService {
         return [followerCount, followeeCount];
     }
 
-    public async getFollowerCount(authToken: string, userAlias: string): Promise<number> {
+    public async getFollowerCount(token: string, userAlias: string): Promise<number> {
         // TODO: Replace with the result of calling server
         return FakeData.instance.getFollowerCount(userAlias);
     }
 
-    public async getFolloweeCount(authToken: string, userAlias: string): Promise<number> {
+    public async getFolloweeCount(token: string, userAlias: string): Promise<number> {
         // TODO: Replace with the result of calling server
         return FakeData.instance.getFolloweeCount(userAlias);
     }
 
     public async getIsFollowerStatus(
-        authToken: string,
+        token: string,
         userAlias: string,
         selectedUserAlias: string
     ): Promise<boolean> {

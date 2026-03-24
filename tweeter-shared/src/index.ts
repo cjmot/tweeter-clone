@@ -14,6 +14,12 @@ export type { AuthTokenDto } from './model/dto/AuthTokenDto';
 export type { StatusDto } from './model/dto/StatusDto';
 
 // Requests
+export type {
+	TweeterRequest,
+	TokenRequest,
+	UserAliasRequest,
+	PagedRequest,
+} from './model/net/request/TweeterRequest';
 export type { PagedUserItemRequest } from './model/net/request/PagedUserItemRequest';
 export type { LoginRequest } from './model/net/request/LoginRequest';
 export type { RegisterRequest } from './model/net/request/RegisterRequest';
@@ -25,6 +31,7 @@ export type { PagedStatusItemRequest } from './model/net/request/PagedStatusItem
 export type { PostStatusRequest } from './model/net/request/PostStatusRequest';
 
 // Responses
+export type { TweeterResponse } from './model/net/response/TweeterResponse';
 export type { PagedUserItemResponse } from './model/net/response/PagedUserItemResponse';
 export type { AuthResponse } from './model/net/response/AuthResponse';
 export type { LoginResponse } from './model/net/response/LoginResponse';
