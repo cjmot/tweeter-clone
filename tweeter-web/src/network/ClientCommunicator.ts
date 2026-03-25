@@ -20,12 +20,8 @@ export class ClientCommunicator {
             });
         }
 
-        console.log(`The request body is '${JSON.stringify(req)}'`);
-
         const url = this.getUrl(endpoint);
         const params = this.getParams('POST', headers, req ? JSON.stringify(req) : req);
-
-        console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
 
         try {
             const resp: Response = await fetch(url, params);
