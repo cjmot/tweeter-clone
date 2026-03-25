@@ -25,17 +25,9 @@ import {
 import { ClientCommunicator } from './ClientCommunicator';
 
 const resolveServerUrl = (): string => {
-    // Evaluate import.meta lazily so Jest/CommonJS can parse this file.
-    let viteServerUrl: string | undefined;
-
-    try {
-        viteServerUrl = Function('return import.meta.env?.VITE_SERVER_URL;')() as string | undefined;
-    } catch {
-        viteServerUrl = undefined;
-    }
-
-    if (viteServerUrl && viteServerUrl.length > 0) {
-        return viteServerUrl;
+    const browserGlobal = globalThis as { __TWEETER_SERVER_URL__?: string };
+    if (browserGlobal.__TWEETER_SERVER_URL__ && browserGlobal.__TWEETER_SERVER_URL__.length > 0) {
+        return browserGlobal.__TWEETER_SERVER_URL__;
     }
 
     const nodeProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
