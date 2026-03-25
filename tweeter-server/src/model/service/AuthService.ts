@@ -2,7 +2,7 @@ import { AuthTokenDto, FakeData, UserDto } from 'tweeter-shared';
 
 export class AuthService {
     public async login(alias: string, password: string): Promise<[UserDto, AuthTokenDto]> {
-        // TODO: Replace with the result of calling the server
+        // TODO: Replace with the result of calling the Database
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
@@ -19,7 +19,7 @@ export class AuthService {
         password: string,
         imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
-        // TODO: Replace with the result of calling the server
+        // TODO: Replace with the result of calling the Database
         const user = FakeData.instance.firstUser;
 
         if (user === null) {
@@ -30,7 +30,7 @@ export class AuthService {
     }
 
     public async logout(token: string): Promise<void> {
-        // Pause so we can see the logging out message. Delete when the call to the server is implemented.
+        // Pause so we can see the logging out message. Delete when the call to the DB is implemented.
         await new Promise((res) => setTimeout(res, 1000));
     }
 }

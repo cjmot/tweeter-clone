@@ -7,7 +7,7 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
-        // TODO: Replace with the result of calling server
+        // TODO: Replace with the result of calling DB
         return this.getFakeData(lastItem, pageSize, userAlias);
     }
 
@@ -17,7 +17,7 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
-        // TODO: Replace with the result of calling server
+        // TODO: Replace with the result of calling DB
         return this.getFakeData(lastItem, pageSize, userAlias);
     }
 
