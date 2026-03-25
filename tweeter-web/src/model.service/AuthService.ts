@@ -1,16 +1,20 @@
-import { AuthToken, FakeData, User } from 'tweeter-shared';
+import { AuthToken, User } from 'tweeter-shared';
+import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
 export class AuthService implements Service {
-    public async login(alias: string, password: string): Promise<[User, AuthToken]> {
-        // TODO: Replace with the result of calling the server
-        const user = FakeData.instance.firstUser;
+    private readonly serverFacade = new ServerFacade();
 
-        if (user === null) {
+    public async login(alias: string, password: string): Promise<[User, AuthToken]> {
+        const [userDto, authTokenDto] = await this.serverFacade.login(alias, password);
+        const user = User.fromDto(userDto);
+        const authToken = AuthToken.fromDto(authTokenDto);
+
+        if (user == null || authToken == null) {
             throw new Error('Invalid alias or password');
         }
 
-        return [user, FakeData.instance.authToken];
+        return [user, authToken];
     }
 
     public async register(
@@ -20,18 +24,24 @@ export class AuthService implements Service {
         password: string,
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
-        // TODO: Replace with the result of calling the server
-        const user = FakeData.instance.firstUser;
+        const [userDto, authTokenDto] = await this.serverFacade.register(
+            firstName,
+            lastName,
+            alias,
+            password,
+            imageFileExtension
+        );
+        const user = User.fromDto(userDto);
+        const authToken = AuthToken.fromDto(authTokenDto);
 
-        if (user === null) {
+        if (user == null || authToken == null) {
             throw new Error('Invalid registration');
         }
 
-        return [user, FakeData.instance.authToken];
+        return [user, authToken];
     }
 
     public async logout(authToken: AuthToken): Promise<void> {
-        // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-        await new Promise((res) => setTimeout(res, 1000));
+        await this.serverFacade.logout(authToken.token);
     }
 }

@@ -1,15 +1,23 @@
-import { AuthToken, FakeData, Status } from 'tweeter-shared';
+import { AuthToken, Status, StatusDto } from 'tweeter-shared';
+import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
 export class StatusService implements Service {
+    private readonly serverFacade = new ServerFacade();
+
     public async loadMoreStoryItems(
         authToken: AuthToken,
         userAlias: string,
         pageSize: number,
         lastStoryItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastStoryItem, pageSize);
+        const [storyItems, hasMore] = await this.serverFacade.getMoreStoryItems(
+            authToken.token,
+            userAlias,
+            pageSize,
+            lastStoryItem?.dto ?? null
+        );
+        return [this.toStatuses(storyItems), hasMore];
     }
 
     public async loadMoreFeedItems(
@@ -18,14 +26,22 @@ export class StatusService implements Service {
         pageSize: number,
         lastFeedItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfStatuses(lastFeedItem, pageSize);
+        const [feedItems, hasMore] = await this.serverFacade.getMoreFeedItems(
+            authToken.token,
+            userAlias,
+            pageSize,
+            lastFeedItem?.dto ?? null
+        );
+        return [this.toStatuses(feedItems), hasMore];
     }
 
     public async postStatus(authToken: AuthToken, newStatus: Status): Promise<void> {
-        // Pause so we can see the posting message. Remove when connected to the server
-        await new Promise((f) => setTimeout(f, 2000));
+        await this.serverFacade.postStatus(authToken.token, newStatus.dto);
+    }
 
-        // TODO: Call the server to post the status
+    private toStatuses(dtos: StatusDto[]): Status[] {
+        return dtos
+            .map((dto) => Status.fromDto(dto))
+            .filter((status): status is Status => status != null);
     }
 }
