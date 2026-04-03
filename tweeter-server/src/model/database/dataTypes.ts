@@ -16,3 +16,9 @@ export class DataPage<T> {
         this.lastKey = lastKey;
     }
 }
+
+export interface Session {
+    token: string;
+    alias: string;
+    expires_at: number;
+}

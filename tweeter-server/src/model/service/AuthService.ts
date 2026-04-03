@@ -1,15 +1,35 @@
-import { AuthTokenDto, FakeData, UserDto } from 'tweeter-shared';
+import { AuthToken, AuthTokenDto, FakeData, UserDto } from 'tweeter-shared';
+import DAOFactory from '../../database/dao/DAOFactory';
+import { SessionDAO } from '../../database/dao/SessionDAO';
+import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 
 export class AuthService {
+    private static readonly sessionDurationMs = 24 * 60 * 60 * 1000;
+    private sessionDao: SessionDAO;
+
+    public constructor(factory: DAOFactory = new DynamoDAOFactory()) {
+        this.sessionDao = factory.getSessionDao();
+    }
+
     public async login(alias: string, password: string): Promise<[UserDto, AuthTokenDto]> {
-        // TODO: Replace with the result of calling the Database
-        const user = FakeData.instance.firstUser;
+        try {
+            const user = FakeData.instance.findUserByAlias(alias);
 
-        if (user === null) {
-            throw new Error('Invalid alias or password');
+            if (user === null) {
+                throw new Error('Invalid alias or password');
+            }
+
+            const authToken = AuthToken.Generate().dto;
+            await this.sessionDao.createSession({
+                token: authToken.token,
+                alias: user.alias,
+                expires_at: authToken.timestamp + AuthService.sessionDurationMs,
+            });
+
+            return [user.dto, authToken];
+        } catch (error) {
+            throw this.wrapServiceError('Login failed', error);
         }
-
-        return [user.dto, FakeData.instance.authToken.dto];
     }
 
     public async register(
@@ -19,18 +39,40 @@ export class AuthService {
         password: string,
         imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
-        // TODO: Replace with the result of calling the Database
-        const user = FakeData.instance.firstUser;
+        try {
+            const normalizedAlias = alias.startsWith('@') ? alias : `@${alias}`;
+            const userDto: UserDto = {
+                firstName,
+                lastName,
+                alias: normalizedAlias,
+                imageUrl: imageFileExtension,
+            };
+            const authToken = AuthToken.Generate().dto;
+            await this.sessionDao.createSession({
+                token: authToken.token,
+                alias: normalizedAlias,
+                expires_at: authToken.timestamp + AuthService.sessionDurationMs,
+            });
 
-        if (user === null) {
-            throw new Error('Invalid registration');
+            return [userDto, authToken];
+        } catch (error) {
+            throw this.wrapServiceError('Registration failed', error);
         }
-
-        return [user.dto, FakeData.instance.authToken.dto];
     }
 
     public async logout(token: string): Promise<void> {
-        // Pause so we can see the logging out message. Delete when the call to the DB is implemented.
-        await new Promise((res) => setTimeout(res, 1000));
+        try {
+            await this.sessionDao.deleteSession(token);
+        } catch (error) {
+            throw this.wrapServiceError('Logout failed', error);
+        }
+    }
+
+    private wrapServiceError(message: string, error: unknown): Error {
+        if (error instanceof Error) {
+            return new Error(`${message}: ${error.message}`, { cause: error });
+        }
+
+        return new Error(message);
     }
 }

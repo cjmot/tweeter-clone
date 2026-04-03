@@ -1,13 +1,19 @@
 import { UserCountResponse, UserRequest } from 'tweeter-shared';
-import { UserService } from '../../model/service/UserService';
+import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
+import { FollowService } from '../../model/service/FollowService';
+import { toApiGatewayError } from '../ApiGatewayError';
 
 export const handler = async (request: UserRequest): Promise<UserCountResponse> => {
-    const userService = new UserService();
-    const count = await userService.getFollowerCount(request.token, request.userAlias);
+    try {
+        const followService = new FollowService(new DynamoDAOFactory());
+        const count = await followService.getFollowerCount(request.token, request.userAlias);
 
-    return {
-        success: true,
-        message: null,
-        count: count,
-    };
+        return {
+            success: true,
+            message: null,
+            count: count,
+        };
+    } catch (error) {
+        throw toApiGatewayError(error);
+    }
 };
