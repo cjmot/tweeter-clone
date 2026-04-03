@@ -3,15 +3,17 @@ import FollowDAO from '../../database/dao/FollowDAO';
 import DAOFactory from '../../database/dao/DAOFactory';
 import { AuthGuard } from './AuthGuard';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
-import { Follow } from '../database/dataTypes';
+import UserDAO from '../../database/dao/UserDAO';
 
 export class FollowService {
     private authGuard: AuthGuard;
     private followDao: FollowDAO;
+    private userDao: UserDAO;
 
     constructor(factory: DAOFactory = new DynamoDAOFactory()) {
         this.authGuard = new AuthGuard(factory);
         this.followDao = factory.getFollowDao();
+        this.userDao = factory.getUserDao();
     }
 
     public async loadMoreFollowees(
@@ -24,8 +26,10 @@ export class FollowService {
         const normalizedUserAlias = this.normalizeAlias(userAlias);
         const lastFolloweeAlias = lastItem ? this.normalizeAlias(lastItem.alias) : undefined;
         const page = await this.followDao.getPageOfFollowees(normalizedUserAlias, pageSize, lastFolloweeAlias);
+        const followeeAliases = page.values.map((follow) => follow.followee_alias);
+        const users = await this.getUsersByAliases(followeeAliases);
 
-        return [page.values.map((follow) => this.toFolloweeDto(follow)), page.hasMorePages];
+        return [users, page.hasMorePages];
     }
 
     public async loadMoreFollowers(
@@ -38,8 +42,10 @@ export class FollowService {
         const normalizedUserAlias = this.normalizeAlias(userAlias);
         const lastFollowerAlias = lastItem ? this.normalizeAlias(lastItem.alias) : undefined;
         const page = await this.followDao.getPageOfFollowers(normalizedUserAlias, pageSize, lastFollowerAlias);
+        const followerAliases = page.values.map((follow) => follow.follower_alias);
+        const users = await this.getUsersByAliases(followerAliases);
 
-        return [page.values.map((follow) => this.toFollowerDto(follow)), page.hasMorePages];
+        return [users, page.hasMorePages];
     }
 
     public async unfollow(
@@ -60,9 +66,14 @@ export class FollowService {
         const session = await this.authGuard.verifySession(token);
         const followerAlias = this.normalizeAlias(session.alias);
         const followeeAlias = this.normalizeAlias(userToFollow.alias);
+        const followerUser = await this.userDao.getUserByAlias(followerAlias);
+        if (!followerUser) {
+            throw new Error('bad-request: Follower user not found');
+        }
+
         await this.followDao.putFollow({
             follower_alias: followerAlias,
-            follower_name: followerAlias,
+            follower_name: this.fullName(followerUser),
             followee_alias: followeeAlias,
             followee_name: this.fullName(userToFollow),
         });
@@ -84,41 +95,19 @@ export class FollowService {
         return follow !== null;
     }
 
-    private toFolloweeDto(follow: Follow): UserDto {
-        const [firstName, lastName] = this.splitName(follow.followee_name);
-        return {
-            alias: follow.followee_alias,
-            firstName,
-            lastName,
-            imageUrl: '',
-        };
-    }
-
-    private toFollowerDto(follow: Follow): UserDto {
-        const [firstName, lastName] = this.splitName(follow.follower_name);
-        return {
-            alias: follow.follower_alias,
-            firstName,
-            lastName,
-            imageUrl: '',
-        };
-    }
-
     private fullName(user: UserDto): string {
         return `${user.firstName} ${user.lastName}`.trim();
     }
 
-    private splitName(name: string): [string, string] {
-        const trimmed = name.trim();
-        if (!trimmed) {
-            return ['', ''];
-        }
-
-        const [first, ...rest] = trimmed.split(/\s+/);
-        return [first, rest.join(' ')];
-    }
-
     private normalizeAlias(alias: string): string {
         return alias.startsWith('@') ? alias : `@${alias}`;
+    }
+
+    private async getUsersByAliases(aliases: string[]): Promise<UserDto[]> {
+        const users = await Promise.all(
+            aliases.map(async (alias) => this.userDao.getUserByAlias(alias))
+        );
+
+        return users.filter((user): user is UserDto => user !== null);
     }
 }
