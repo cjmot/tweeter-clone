@@ -1,7 +1,7 @@
 export interface Follow {
-    follower_handle: string;
+    follower_alias: string;
     follower_name: string;
-    followee_handle: string;
+    followee_alias: string;
     followee_name: string;
 }
 

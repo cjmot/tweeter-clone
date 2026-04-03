@@ -11,10 +11,10 @@ import { Follow, DataPage } from '../../model/database/dataTypes';
 
 
 export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
-    private readonly followsIndexName = 'follows_index';
+    private readonly followIndexName = 'follow_index';
 
     public constructor() {
-        super('follows');
+        super('follow');
     }
 
     public async putFollow(follow: Follow): Promise<void> {
@@ -26,13 +26,13 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         );
     }
 
-    public async getFollow(followerHandle: string, followeeHandle: string): Promise<Follow | null> {
+    public async getFollow(followerAlias: string, followeeAlias: string): Promise<Follow | null> {
         const response = await this.docClient.send(
             new GetCommand({
                 TableName: this.tableName,
                 Key: {
-                    follower_handle: followerHandle,
-                    followee_handle: followeeHandle,
+                    follower_alias: followerAlias,
+                    followee_alias: followeeAlias,
                 },
             })
         );
@@ -47,8 +47,8 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
             new UpdateCommand({
                 TableName: this.tableName,
                 Key: {
-                    follower_handle: follow.follower_handle,
-                    followee_handle: follow.followee_handle,
+                    follower_alias: follow.follower_alias,
+                    followee_alias: follow.followee_alias,
                 },
                 UpdateExpression: 'SET follower_name = :followerName, followee_name = :followeeName',
                 ExpressionAttributeValues: {
@@ -62,25 +62,25 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         return (response.Attributes as Follow | undefined) ?? null;
     }
 
-    public async deleteFollow(followerHandle: string, followeeHandle: string): Promise<void> {
+    public async deleteFollow(followerAlias: string, followeeAlias: string): Promise<void> {
         await this.docClient.send(
             new DeleteCommand({
                 TableName: this.tableName,
                 Key: {
-                    follower_handle: followerHandle,
-                    followee_handle: followeeHandle,
+                    follower_alias: followerAlias,
+                    followee_alias: followeeAlias,
                 },
             })
         );
     }
 
-    public async getFolloweesForFollower(followerHandle: string): Promise<Follow[]> {
+    public async getFolloweesForFollower(followerAlias: string): Promise<Follow[]> {
         const response = await this.docClient.send(
             new QueryCommand({
                 TableName: this.tableName,
-                KeyConditionExpression: 'follower_handle = :followerHandle',
+                KeyConditionExpression: 'follower_alias = :followerAlias',
                 ExpressionAttributeValues: {
-                    ':followerHandle': followerHandle,
+                    ':followerAlias': followerAlias,
                 },
             })
         );
@@ -88,14 +88,14 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         return (response.Items as Follow[] | undefined) ?? [];
     }
 
-    public async getFollowersForFollowee(followeeHandle: string): Promise<Follow[]> {
+    public async getFollowersForFollowee(followeeAlias: string): Promise<Follow[]> {
         const response = await this.docClient.send(
             new QueryCommand({
                 TableName: this.tableName,
-                IndexName: this.followsIndexName,
-                KeyConditionExpression: 'followee_handle = :followeeHandle',
+                IndexName: this.followIndexName,
+                KeyConditionExpression: 'followee_alias = :followeeAlias',
                 ExpressionAttributeValues: {
-                    ':followeeHandle': followeeHandle,
+                    ':followeeAlias': followeeAlias,
                 },
             })
         );
@@ -104,21 +104,21 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
     }
 
     async getPageOfFollowees(
-        followerHandle: string,
+        followerAlias: string,
         pageSize: number,
-        lastFolloweeHandle?: string
+        lastFolloweeAlias?: string
     ): Promise<DataPage<Follow>> {
         const params = {
-            KeyConditionExpression: 'follower_handle = :followerHandle',
+            KeyConditionExpression: 'follower_alias = :followerAlias',
             ExpressionAttributeValues: {
-                ':followerHandle': followerHandle,
+                ':followerAlias': followerAlias,
             },
             TableName: this.tableName,
             Limit: pageSize,
             ExclusiveStartKey:
-                lastFolloweeHandle === null
-                    ? undefined
-                    : { followee_handle: lastFolloweeHandle, follower_handle: followerHandle },
+                lastFolloweeAlias
+                    ? { followee_alias: lastFolloweeAlias, follower_alias: followerAlias }
+                    : undefined,
         };
 
         const items: Follow[] = [];
@@ -127,31 +127,31 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         const hasMorePages = data.LastEvaluatedKey !== undefined;
         data.Items?.forEach((item) =>
             items.push({
-                follower_handle: item.follower_handle,
+                follower_alias: item.follower_alias,
                 follower_name: item.follower_name,
-                followee_handle: item.followee_handle,
+                followee_alias: item.followee_alias,
                 followee_name: item.followee_name,
             } as Follow)
         );
-        return new DataPage<Follow>(items, hasMorePages, data.LastEvaluatedKey?.followee_handle);
+        return new DataPage<Follow>(items, hasMorePages, data.LastEvaluatedKey?.followee_alias);
     }
     async getPageOfFollowers(
-        followeeHandle: string,
+        followeeAlias: string,
         pageSize: number,
-        lastFollowerHandle?: string
+        lastFollowerAlias?: string
     ): Promise<DataPage<Follow>> {
         const params = {
-            KeyConditionExpression: 'followee_handle = :followeeHandle',
-            IndexName: this.followsIndexName,
+            KeyConditionExpression: 'followee_alias = :followeeAlias',
+            IndexName: this.followIndexName,
             ExpressionAttributeValues: {
-                ':followeeHandle': followeeHandle,
+                ':followeeAlias': followeeAlias,
             },
             TableName: this.tableName,
             Limit: pageSize,
             ExclusiveStartKey:
-                lastFollowerHandle === null
-                    ? undefined
-                    : { followee_handle: followeeHandle, follower_handle: lastFollowerHandle },
+                lastFollowerAlias
+                    ? { followee_alias: followeeAlias, follower_alias: lastFollowerAlias }
+                    : undefined,
         };
 
         const items: Follow[] = [];
@@ -159,12 +159,12 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         const hasMorePages = data.LastEvaluatedKey !== undefined;
         data.Items?.forEach((item) =>
             items.push({
-                follower_handle: item.follower_handle,
+                follower_alias: item.follower_alias,
                 follower_name: item.follower_name,
-                followee_handle: item.followee_handle,
+                followee_alias: item.followee_alias,
                 followee_name: item.followee_name,
             } as Follow)
         );
-        return new DataPage<Follow>(items, hasMorePages, data.LastEvaluatedKey?.follower_handle);
+        return new DataPage<Follow>(items, hasMorePages, data.LastEvaluatedKey?.follower_alias);
     }
 }

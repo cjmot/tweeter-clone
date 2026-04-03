@@ -1,14 +1,16 @@
-import { FakeData, User, UserDto } from 'tweeter-shared';
-import { SessionDAO } from '../../database/dao/SessionDAO';
+import { UserDto } from 'tweeter-shared';
 import FollowDAO from '../../database/dao/FollowDAO';
 import DAOFactory from '../../database/dao/DAOFactory';
+import { AuthGuard } from './AuthGuard';
+import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
+import { Follow } from '../database/dataTypes';
 
 export class FollowService {
-    private sessionDao: SessionDAO;
+    private authGuard: AuthGuard;
     private followDao: FollowDAO;
 
-    constructor(factory: DAOFactory) {
-        this.sessionDao = factory.getSessionDao();
+    constructor(factory: DAOFactory = new DynamoDAOFactory()) {
+        this.authGuard = new AuthGuard(factory);
         this.followDao = factory.getFollowDao();
     }
 
@@ -18,8 +20,12 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
-        // TODO: Replace with the result of calling DB
-        return this.getFakeData(lastItem, pageSize, userAlias);
+        await this.authGuard.verifySession(token);
+        const normalizedUserAlias = this.normalizeAlias(userAlias);
+        const lastFolloweeAlias = lastItem ? this.normalizeAlias(lastItem.alias) : undefined;
+        const page = await this.followDao.getPageOfFollowees(normalizedUserAlias, pageSize, lastFolloweeAlias);
+
+        return [page.values.map((follow) => this.toFolloweeDto(follow)), page.hasMorePages];
     }
 
     public async loadMoreFollowers(
@@ -28,58 +34,91 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
-        // TODO: Replace with the result of calling DB
+        await this.authGuard.verifySession(token);
+        const normalizedUserAlias = this.normalizeAlias(userAlias);
+        const lastFollowerAlias = lastItem ? this.normalizeAlias(lastItem.alias) : undefined;
+        const page = await this.followDao.getPageOfFollowers(normalizedUserAlias, pageSize, lastFollowerAlias);
 
-        return this.getFakeData(lastItem, pageSize, userAlias);
+        return [page.values.map((follow) => this.toFollowerDto(follow)), page.hasMorePages];
     }
 
     public async unfollow(
         token: string,
         userToUnfollow: UserDto
     ): Promise<[followerCount: number, followeeCount: number]> {
-        // Pause so we can see the unfollow message. Remove when connected to the DB
-        await new Promise((f) => setTimeout(f, 2000));
-
-        // TODO: Call the DB
-        const followerCount = await FakeData.instance.getFollowerCount(userToUnfollow.alias);
-        const followeeCount = await FakeData.instance.getFolloweeCount(userToUnfollow.alias);
+        const session = await this.authGuard.verifySession(token);
+        const followerAlias = this.normalizeAlias(session.alias);
+        const followeeAlias = this.normalizeAlias(userToUnfollow.alias);
+        await this.followDao.deleteFollow(followerAlias, followeeAlias);
+        const followerCount = (await this.followDao.getFollowersForFollowee(followeeAlias)).length;
+        const followeeCount = (await this.followDao.getFolloweesForFollower(followerAlias)).length;
 
         return [followerCount, followeeCount];
     }
 
-    public async follow(token: string, userToFollow: UserDto): Promise<[followerCount: number, followeeCount: number]> {
-        // Pause so we can see the follow message. Remove when connected to the DB
-        await new Promise((f) => setTimeout(f, 2000));
-
-        // TODO: Call the DB
-        const followerCount = await FakeData.instance.getFollowerCount(userToFollow.alias);
-        const followeeCount = await FakeData.instance.getFolloweeCount(userToFollow.alias);
-
-        return [followerCount, followeeCount];
+    public async follow(token: string, userToFollow: UserDto): Promise<void> {
+        const session = await this.authGuard.verifySession(token);
+        const followerAlias = this.normalizeAlias(session.alias);
+        const followeeAlias = this.normalizeAlias(userToFollow.alias);
+        await this.followDao.putFollow({
+            follower_alias: followerAlias,
+            follower_name: followerAlias,
+            followee_alias: followeeAlias,
+            followee_name: this.fullName(userToFollow),
+        });
     }
 
     public async getFollowerCount(token: string, userAlias: string): Promise<number> {
-        // TODO: Replace with the result of calling DB
-        return FakeData.instance.getFollowerCount(userAlias);
+        await this.authGuard.verifySession(token);
+        return (await this.followDao.getFollowersForFollowee(this.normalizeAlias(userAlias))).length;
     }
 
     public async getFolloweeCount(token: string, userAlias: string): Promise<number> {
-        // TODO: Replace with the result of calling DB
-        return FakeData.instance.getFolloweeCount(userAlias);
+        await this.authGuard.verifySession(token);
+        return (await this.followDao.getFolloweesForFollower(this.normalizeAlias(userAlias))).length;
     }
 
     public async getIsFollowerStatus(token: string, userAlias: string, selectedUserAlias: string): Promise<boolean> {
-        // TODO: Replace with the result of calling DB
-        return FakeData.instance.isFollower();
+        await this.authGuard.verifySession(token);
+        const follow = await this.followDao.getFollow(this.normalizeAlias(userAlias), this.normalizeAlias(selectedUserAlias));
+        return follow !== null;
     }
 
-    private async getFakeData(
-        lastItem: UserDto | null,
-        pageSize: number,
-        userAlias: string
-    ): Promise<[UserDto[], boolean]> {
-        const [users, hasMore] = FakeData.instance.getPageOfUsers(User.fromDto(lastItem), pageSize, userAlias);
-        const dtos = users.map((user) => user.dto);
-        return [dtos, hasMore];
+    private toFolloweeDto(follow: Follow): UserDto {
+        const [firstName, lastName] = this.splitName(follow.followee_name);
+        return {
+            alias: follow.followee_alias,
+            firstName,
+            lastName,
+            imageUrl: '',
+        };
+    }
+
+    private toFollowerDto(follow: Follow): UserDto {
+        const [firstName, lastName] = this.splitName(follow.follower_name);
+        return {
+            alias: follow.follower_alias,
+            firstName,
+            lastName,
+            imageUrl: '',
+        };
+    }
+
+    private fullName(user: UserDto): string {
+        return `${user.firstName} ${user.lastName}`.trim();
+    }
+
+    private splitName(name: string): [string, string] {
+        const trimmed = name.trim();
+        if (!trimmed) {
+            return ['', ''];
+        }
+
+        const [first, ...rest] = trimmed.split(/\s+/);
+        return [first, rest.join(' ')];
+    }
+
+    private normalizeAlias(alias: string): string {
+        return alias.startsWith('@') ? alias : `@${alias}`;
     }
 }
