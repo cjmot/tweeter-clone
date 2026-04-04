@@ -1,11 +1,11 @@
 import { PagedStatusItemRequest, PagedStatusItemResponse } from 'tweeter-shared';
-import { StatusService } from '../../model/service/StatusService';
+import { FeedService } from '../../model/service/FeedService';
 import { toApiGatewayError } from '../ApiGatewayError';
 
 export const handler = async (request: PagedStatusItemRequest): Promise<PagedStatusItemResponse> => {
     try {
-        const statusService = new StatusService();
-        const [items, hasMore] = await statusService.loadMoreFeedItems(
+        const feedService = new FeedService();
+        const [items, hasMore] = await feedService.loadMoreFeedItems(
             request.token,
             request.userAlias,
             request.pageSize,

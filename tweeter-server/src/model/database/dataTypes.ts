@@ -42,3 +42,15 @@ export interface StatusRecord {
         imageUrl: string;
     };
 }
+
+export interface FeedRecord {
+    recipient_alias: string;
+    timestamp: number;
+    post: string;
+    user: {
+        alias: string;
+        firstName: string;
+        lastName: string;
+        imageUrl: string;
+    };
+}

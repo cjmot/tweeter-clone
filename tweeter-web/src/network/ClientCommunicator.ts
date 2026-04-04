@@ -31,13 +31,43 @@ export class ClientCommunicator {
                 const response: RES = await resp.json();
                 return response;
             } else {
-                const error = await resp.json();
-                throw new Error(error.errorMessage);
+                const serverErrorMessage = await this.readErrorMessage(resp);
+                const userMessage = this.toUserMessage(resp.status, endpoint, serverErrorMessage);
+                throw new Error(userMessage);
             }
         } catch (error) {
             console.error(error);
-            throw new Error(`Client communicator ${params.method} failed:\n${(error as Error).message}`);
+            throw new Error((error as Error).message);
         }
+    }
+
+    private async readErrorMessage(resp: Response): Promise<string | null> {
+        try {
+            const payload = (await resp.json()) as { error?: string; message?: string; errorMessage?: string };
+            return payload.error ?? payload.message ?? payload.errorMessage ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    private toUserMessage(status: number, endpoint: string, serverMessage: string | null): string {
+        if (status === 401) {
+            if (endpoint === '/auth/login') {
+                return 'Wrong username or password';
+            }
+
+            return 'Your session has expired. Please sign in again.';
+        }
+
+        if (status === 400) {
+            return serverMessage ?? 'Invalid request';
+        }
+
+        if (status >= 500) {
+            return 'Server error. Please try again.';
+        }
+
+        return serverMessage ?? `Request failed with status ${status}`;
     }
 
     private getUrl(endpoint: string): string {

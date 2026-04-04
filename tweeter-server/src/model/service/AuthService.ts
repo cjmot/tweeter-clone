@@ -3,6 +3,7 @@ import DAOFactory from '../../database/dao/DAOFactory';
 import ImagesDAO from '../../database/dao/ImagesDAO';
 import { SessionDAO } from '../../database/dao/SessionDAO';
 import UserDAO from '../../database/dao/UserDAO';
+import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 
 export class AuthService {
     private static readonly sessionDurationMs = 24 * 60 * 60 * 1000;
@@ -10,7 +11,7 @@ export class AuthService {
     private sessionDao: SessionDAO;
     private userDao: UserDAO;
 
-    public constructor(factory: DAOFactory) {
+    public constructor(factory: DAOFactory = new DynamoDAOFactory()) {
         this.imagesDao = factory.getImagesDao();
         this.sessionDao = factory.getSessionDao();
         this.userDao = factory.getUserDao();

@@ -1,11 +1,10 @@
 import { RegisterRequest, RegisterResponse } from 'tweeter-shared';
 import { AuthService } from '../../model/service/AuthService';
 import { toApiGatewayError } from '../ApiGatewayError';
-import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 
 export const handler = async (request: RegisterRequest): Promise<RegisterResponse> => {
     try {
-        const authService = new AuthService(new DynamoDAOFactory());
+        const authService = new AuthService();
         const [user, authToken] = await authService.register(
             request.firstName,
             request.lastName,
