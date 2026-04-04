@@ -24,19 +24,6 @@ import {
 } from 'tweeter-shared';
 import { ClientCommunicator } from './ClientCommunicator';
 
-const resolveServerUrl = (): string => {
-    const browserGlobal = globalThis as { __TWEETER_SERVER_URL__?: string };
-    if (browserGlobal.__TWEETER_SERVER_URL__ && browserGlobal.__TWEETER_SERVER_URL__.length > 0) {
-        return browserGlobal.__TWEETER_SERVER_URL__;
-    }
-
-    const nodeProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
-    if (nodeProcess?.env?.VITE_SERVER_URL) {
-        return nodeProcess.env.VITE_SERVER_URL;
-    }
-
-    return '';
-};
 
 export class ServerFacade {
     private static readonly endpoints = {
@@ -58,8 +45,9 @@ export class ServerFacade {
 
     private readonly clientCommunicator: ClientCommunicator;
 
-    public constructor(serverUrl?: string) {
-        this.clientCommunicator = new ClientCommunicator(serverUrl ?? resolveServerUrl());
+    public constructor() {
+        const SERVER_URL = 'https://t1eduah3p3.execute-api.us-east-1.amazonaws.com/prod'
+        this.clientCommunicator = new ClientCommunicator(SERVER_URL);
     }
 
     public async login(alias: string, password: string): Promise<[UserDto, AuthTokenDto]> {

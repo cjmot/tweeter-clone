@@ -1,9 +1,10 @@
 import { AuthToken, User } from 'tweeter-shared';
-import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
-export class UserService implements Service {
-    private readonly serverFacade = new ServerFacade();
+export class UserService extends Service {
+    constructor() {
+        super();
+    }
 
     public async getUser(authToken: AuthToken, alias: string): Promise<User | null> {
         const userDto = await this.serverFacade.getUser(authToken.token, alias);
