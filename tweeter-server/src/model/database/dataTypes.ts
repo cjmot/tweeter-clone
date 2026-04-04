@@ -30,3 +30,15 @@ export interface UserRecord {
     image_url: string;
     password: string;
 }
+
+export interface StatusRecord {
+    user_alias: string;
+    timestamp: number;
+    post: string;
+    user: {
+        alias: string;
+        firstName: string;
+        lastName: string;
+        imageUrl: string;
+    };
+}

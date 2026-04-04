@@ -639,6 +639,25 @@ Resources:
         ReadCapacityUnits: 10
         WriteCapacityUnits: 10
 
+  statusTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: status
+      AttributeDefinitions:
+        - AttributeName: user_alias
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: user_alias
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
+
   #
   # TODO: ADD MORE TABLE DEFINITIONS HERE
   #

@@ -2,12 +2,15 @@ import { FakeData, Status, StatusDto } from 'tweeter-shared';
 import DAOFactory from '../../database/dao/DAOFactory';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 import { AuthGuard } from './AuthGuard';
+import StatusDAO from '../../database/dao/StatusDAO';
 
 export class StatusService {
     private authGuard: AuthGuard;
+    private statusDao: StatusDAO;
 
     public constructor(factory: DAOFactory = new DynamoDAOFactory()) {
         this.authGuard = new AuthGuard(factory);
+        this.statusDao = factory.getStatusDao();
     }
 
     public async loadMoreStoryItems(
@@ -17,8 +20,9 @@ export class StatusService {
         lastStoryItem: StatusDto | null
     ): Promise<[StatusDto[], boolean]> {
         await this.authGuard.verifySession(token);
-        // TODO: Replace with the result of calling DB
-        return this.getFakeData(lastStoryItem, pageSize);
+        const normalizedAlias = userAlias.startsWith('@') ? userAlias : `@${userAlias}`;
+        const page = await this.statusDao.getPageOfStories(normalizedAlias, pageSize, lastStoryItem?.timestamp);
+        return [page.values, page.hasMorePages];
     }
 
     public async loadMoreFeedItems(
@@ -35,9 +39,7 @@ export class StatusService {
     public async postStatus(token: string, newStatus: StatusDto): Promise<void> {
         await this.authGuard.verifySession(token);
         // Pause so we can see the posting message. Remove when connected to the DB
-        await new Promise((f) => setTimeout(f, 2000));
-
-        // TODO: Call the DB to post the status
+        await this.statusDao.putStatus(newStatus);
     }
 
     private async getFakeData(lastItem: StatusDto | null, pageSize: number): Promise<[StatusDto[], boolean]> {
