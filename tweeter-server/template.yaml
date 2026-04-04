@@ -549,8 +549,8 @@ Resources:
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
 
   followTable:
     Type: AWS::DynamoDB::Table
@@ -578,8 +578,8 @@ Resources:
             - AttributeName: follower_alias
               KeyType: RANGE
           ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
+            ReadCapacityUnits: 10
+            WriteCapacityUnits: 10
           Projection:
             ProjectionType: ALL
 
@@ -595,8 +595,8 @@ Resources:
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
 
   #
   # TODO: ADD MORE TABLE DEFINITIONS HERE
