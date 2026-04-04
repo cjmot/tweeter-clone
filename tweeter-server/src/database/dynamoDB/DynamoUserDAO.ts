@@ -1,15 +1,9 @@
 import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import bcrypt from 'bcryptjs';
 import { UserDto } from 'tweeter-shared';
 import UserDAO from '../dao/UserDAO';
 import DynamoDAO from './DynamoDAO';
-
-interface UserRecord {
-    alias: string;
-    first_name: string;
-    last_name: string;
-    image_url: string;
-    password: string;
-}
+import { UserRecord } from '../../model/database/dataTypes';
 
 export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
     public constructor() {
@@ -17,12 +11,14 @@ export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
     }
 
     public async createUser(user: UserDto, password: string): Promise<UserDto> {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
         const item: UserRecord = {
             alias: user.alias,
             first_name: user.firstName,
             last_name: user.lastName,
             image_url: user.imageUrl,
-            password,
+            password: hash
         };
 
         try {
@@ -69,8 +65,9 @@ export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
             );
 
             const item = response.Item as UserRecord | undefined;
-            if (!item || item.password !== password) {
-                return null;
+
+            if (!item || !(await bcrypt.compare(password, item.password))) {
+                return null
             }
 
             return this.toUserDto(item);

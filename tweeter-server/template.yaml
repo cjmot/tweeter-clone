@@ -14,6 +14,10 @@ Globals:
       - !Ref tweeterLayer
     Timeout: 30
     MemorySize: 128
+    Environment:
+      Variables:
+        IMAGES_BUCKET: !Ref profileImagesBucket
+        REGION: !Ref AWS::Region
 
 
 #
@@ -531,6 +535,43 @@ Resources:
   #           Properties:
   #             Queue: !GetAtt MyQueue.Arn
   #             Enabled: true
+
+  #
+  # S3 Buckets
+  #
+
+  profileImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub tweeter-profile-images-${AWS::AccountId}-${AWS::Region}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: false
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods:
+              - GET
+              - PUT
+            AllowedOrigins:
+              - "*"
+            AllowedHeaders:
+              - "*"
+
+  profileImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref profileImagesBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadProfileImages
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource: !Sub arn:aws:s3:::${profileImagesBucket}/profiles/*
 
 
   #

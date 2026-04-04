@@ -69,6 +69,7 @@ export class ServerFacade {
         lastName: string,
         alias: string,
         password: string,
+        imageBytesBase64: string,
         imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
         const request: RegisterRequest = {
@@ -76,6 +77,7 @@ export class ServerFacade {
             lastName,
             alias,
             password,
+            imageBytesBase64,
             imageFileExtension,
         };
         const response = await this.clientCommunicator.doPost<RegisterRequest, RegisterResponse>(

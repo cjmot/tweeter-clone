@@ -13,7 +13,14 @@ describe('ServerFacade integration (happy paths)', () => {
         serverFacade = new ServerFacade();
 
         const testAlias = 'testAlias';
-        const [user, token] = await serverFacade.register('Integration', 'Tester', testAlias, 'password123', '.png');
+        const [user, token] = await serverFacade.register(
+            'Integration',
+            'Tester',
+            testAlias,
+            'password123',
+            'iVBORw0KGgo=',
+            '.png'
+        );
 
         registeredUser = user;
         authToken = token;

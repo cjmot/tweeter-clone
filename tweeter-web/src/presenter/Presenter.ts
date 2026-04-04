@@ -21,8 +21,12 @@ export abstract class Presenter<V extends View> {
         try {
             await operation();
         } catch (error) {
+            let message = (error as Error).message
+            if ((error as Error).message.includes('Unauthorized')) {
+                message = 'Unauthorized'
+            }
             this.view.displayErrorMessage(
-                `Failed to ${operationDescription} because of exception: ${(error as Error).message}`
+                `Failed to ${operationDescription} because of exception: ${message}`
             );
         }
     }

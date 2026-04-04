@@ -14,7 +14,6 @@ const Register = () => {
     const [alias, setAlias] = useState('');
     const [password, setPassword] = useState('');
     const [imageUrl, setImageUrl] = useState<string>('');
-    const [imageFileExtension, setImageFileExtension] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
@@ -22,12 +21,12 @@ const Register = () => {
     const { displayErrorMessage } = useMessageActions();
 
     const view: RegisterView = {
+        imageUrl: imageUrl,
         setIsLoading: setIsLoading,
         updateUserInfo: updateUserInfo,
         navigateTo: navigate,
         displayErrorMessage: displayErrorMessage,
         setImageUrl: setImageUrl,
-        setImageFileExtension: setImageFileExtension,
     };
 
     const presenterRef = useRef<RegisterPresenter | null>(null);
@@ -36,7 +35,7 @@ const Register = () => {
     }
 
     const checkSubmitButtonStatus = (): boolean => {
-        return !firstName || !lastName || !alias || !password || !imageUrl || !imageFileExtension;
+        return !firstName || !lastName || !alias || !password || !imageUrl;
     };
 
     const registerOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {

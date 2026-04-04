@@ -23,6 +23,7 @@ export class AuthService extends Service {
         lastName: string,
         alias: string,
         password: string,
+        imageBytesBase64: string,
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
         const [userDto, authTokenDto] = await this.serverFacade.register(
@@ -30,6 +31,7 @@ export class AuthService extends Service {
             lastName,
             alias,
             password,
+            imageBytesBase64,
             imageFileExtension
         );
         const user = User.fromDto(userDto);

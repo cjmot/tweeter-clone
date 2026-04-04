@@ -11,6 +11,7 @@ export const handler = async (request: RegisterRequest): Promise<RegisterRespons
             request.lastName,
             request.alias,
             request.password,
+            request.imageBytesBase64,
             request.imageFileExtension
         );
 

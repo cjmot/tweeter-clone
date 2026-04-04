@@ -1,14 +1,17 @@
 import { AuthToken, AuthTokenDto, UserDto } from 'tweeter-shared';
 import DAOFactory from '../../database/dao/DAOFactory';
+import ImagesDAO from '../../database/dao/ImagesDAO';
 import { SessionDAO } from '../../database/dao/SessionDAO';
 import UserDAO from '../../database/dao/UserDAO';
 
 export class AuthService {
     private static readonly sessionDurationMs = 24 * 60 * 60 * 1000;
+    private imagesDao: ImagesDAO;
     private sessionDao: SessionDAO;
     private userDao: UserDAO;
 
     public constructor(factory: DAOFactory) {
+        this.imagesDao = factory.getImagesDao();
         this.sessionDao = factory.getSessionDao();
         this.userDao = factory.getUserDao();
     }
@@ -40,11 +43,17 @@ export class AuthService {
         lastName: string,
         alias: string,
         password: string,
+        imageBytesBase64: string,
         imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
         try {
             const normalizedAlias = alias.startsWith('@') ? alias : `@${alias}`;
-            const imageUrl = this.defaultImageUrl(normalizedAlias, imageFileExtension);
+            const imageBytes = Uint8Array.from(Buffer.from(imageBytesBase64, 'base64'));
+            const imageUrl = await this.imagesDao.uploadProfileImage(
+                normalizedAlias,
+                imageBytes,
+                imageFileExtension
+            );
             const userDto: UserDto = {
                 firstName,
                 lastName,
@@ -71,12 +80,6 @@ export class AuthService {
         } catch (error) {
             throw this.wrapServiceError('Logout failed', error);
         }
-    }
-
-    private defaultImageUrl(alias: string, imageFileExtension: string): string {
-        const ext = imageFileExtension.startsWith('.') ? imageFileExtension.substring(1) : imageFileExtension;
-        const safeAlias = alias.startsWith('@') ? alias.substring(1) : alias;
-        return `https://example.com/images/${safeAlias}.${ext || 'png'}`;
     }
 
     private wrapServiceError(message: string, error: unknown): Error {
