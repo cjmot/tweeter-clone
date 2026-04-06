@@ -1,4 +1,4 @@
-import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { BatchGetCommand, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import bcrypt from 'bcryptjs';
 import { UserDto } from 'tweeter-shared';
 import UserDAO from '../dao/UserDAO';
@@ -52,6 +52,35 @@ export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
             return this.toUserDto(response.Item as UserRecord);
         } catch (error) {
             throw this.wrapDynamoError(`Failed to load user ${alias}`, error);
+        }
+    }
+
+    public async getUsersByAliases(aliases: string[]): Promise<UserDto[]> {
+        if (aliases.length === 0) {
+            return [];
+        }
+
+        const uniqueAliases = Array.from(new Set(aliases));
+
+        try {
+            const response = await this.docClient.send(
+                new BatchGetCommand({
+                    RequestItems: {
+                        [this.tableName]: {
+                            Keys: uniqueAliases.map((alias) => ({ alias })),
+                        },
+                    },
+                })
+            );
+
+            const items = (response.Responses?.[this.tableName] as UserRecord[] | undefined) ?? [];
+            const usersByAlias = new Map(items.map((item) => [item.alias, this.toUserDto(item)]));
+
+            return aliases
+                .map((alias) => usersByAlias.get(alias))
+                .filter((user): user is UserDto => user !== undefined);
+        } catch (error) {
+            throw this.wrapDynamoError('Failed to batch load users', error);
         }
     }
 

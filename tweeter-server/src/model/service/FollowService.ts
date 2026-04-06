@@ -56,8 +56,8 @@ export class FollowService {
         const followerAlias = this.normalizeAlias(session.alias);
         const followeeAlias = this.normalizeAlias(userToUnfollow.alias);
         await this.followDao.deleteFollow(followerAlias, followeeAlias);
-        const followerCount = (await this.followDao.getFollowersForFollowee(followeeAlias)).length;
-        const followeeCount = (await this.followDao.getFolloweesForFollower(followerAlias)).length;
+        const followerCount = await this.followDao.getFollowerCountForFollowee(followeeAlias);
+        const followeeCount = await this.followDao.getFolloweeCountForFollower(followerAlias);
 
         return [followerCount, followeeCount];
     }
@@ -81,12 +81,12 @@ export class FollowService {
 
     public async getFollowerCount(token: string, userAlias: string): Promise<number> {
         await this.authGuard.verifySession(token);
-        return (await this.followDao.getFollowersForFollowee(this.normalizeAlias(userAlias))).length;
+        return await this.followDao.getFollowerCountForFollowee(this.normalizeAlias(userAlias));
     }
 
     public async getFolloweeCount(token: string, userAlias: string): Promise<number> {
         await this.authGuard.verifySession(token);
-        return (await this.followDao.getFolloweesForFollower(this.normalizeAlias(userAlias))).length;
+        return await this.followDao.getFolloweeCountForFollower(this.normalizeAlias(userAlias));
     }
 
     public async getIsFollowerStatus(token: string, userAlias: string, selectedUserAlias: string): Promise<boolean> {
@@ -104,10 +104,6 @@ export class FollowService {
     }
 
     private async getUsersByAliases(aliases: string[]): Promise<UserDto[]> {
-        const users = await Promise.all(
-            aliases.map(async (alias) => this.userDao.getUserByAlias(alias))
-        );
-
-        return users.filter((user): user is UserDto => user !== null);
+        return this.userDao.getUsersByAliases(aliases);
     }
 }

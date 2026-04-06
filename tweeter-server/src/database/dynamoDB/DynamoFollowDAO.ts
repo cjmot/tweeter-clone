@@ -103,6 +103,37 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
         return (response.Items as Follow[] | undefined) ?? [];
     }
 
+    public async getFolloweeCountForFollower(followerAlias: string): Promise<number> {
+        const response = await this.docClient.send(
+            new QueryCommand({
+                TableName: this.tableName,
+                KeyConditionExpression: 'follower_alias = :followerAlias',
+                ExpressionAttributeValues: {
+                    ':followerAlias': followerAlias,
+                },
+                Select: 'COUNT',
+            })
+        );
+
+        return response.Count ?? 0;
+    }
+
+    public async getFollowerCountForFollowee(followeeAlias: string): Promise<number> {
+        const response = await this.docClient.send(
+            new QueryCommand({
+                TableName: this.tableName,
+                IndexName: this.followIndexName,
+                KeyConditionExpression: 'followee_alias = :followeeAlias',
+                ExpressionAttributeValues: {
+                    ':followeeAlias': followeeAlias,
+                },
+                Select: 'COUNT',
+            })
+        );
+
+        return response.Count ?? 0;
+    }
+
     async getPageOfFollowees(
         followerAlias: string,
         pageSize: number,
@@ -123,7 +154,6 @@ export class DynamoFollowDAO extends DynamoDAO implements FollowDAO {
 
         const items: Follow[] = [];
         const data = await this.docClient.send(new QueryCommand(params));
-        console.log(data);
         const hasMorePages = data.LastEvaluatedKey !== undefined;
         data.Items?.forEach((item) =>
             items.push({

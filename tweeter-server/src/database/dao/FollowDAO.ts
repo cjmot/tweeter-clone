@@ -13,6 +13,8 @@ export default interface FollowDAO extends TweeterDAO {
     getFolloweesForFollower(followerHandle: string): Promise<Follow[]>;
 
     getFollowersForFollowee(followeeHandle: string): Promise<Follow[]>;
+    getFolloweeCountForFollower(followerHandle: string): Promise<number>;
+    getFollowerCountForFollowee(followeeHandle: string): Promise<number>;
 
     getPageOfFollowees(
         followerHandle: string,
