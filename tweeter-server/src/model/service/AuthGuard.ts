@@ -13,11 +13,11 @@ export class AuthGuard {
     public async verifySession(token: string): Promise<Session> {
         const session = await this.sessionDao.getSessionByToken(token);
         if (!session) {
-            throw new Error('unauthorized: Invalid session token');
+            throw new Error('unauthorized: invalid-session');
         }
 
         if (session.expires_at <= Date.now()) {
-            throw new Error('unauthorized: Session expired');
+            throw new Error('unauthorized: session-expired');
         }
 
         return session;

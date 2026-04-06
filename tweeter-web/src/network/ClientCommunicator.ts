@@ -1,6 +1,7 @@
 import { TweeterRequest, TweeterResponse } from 'tweeter-shared';
 
 export class ClientCommunicator {
+    private static readonly AUTH_EXPIRED_EVENT = 'tweeter:auth-expired';
     private SERVER_URL: string;
 
     public constructor(SERVER_URL: string) {
@@ -51,15 +52,22 @@ export class ClientCommunicator {
     }
 
     private toUserMessage(status: number, endpoint: string, serverMessage: string | null): string {
+        const normalizedServerMessage = (serverMessage ?? '').toLowerCase();
+
         if (status === 401) {
-            if (endpoint === '/auth/login') {
+            if (normalizedServerMessage === 'unauthorized: invalid-credentials' || endpoint === '/auth/login') {
                 return 'Wrong username or password';
             }
 
+            window.dispatchEvent(new Event(ClientCommunicator.AUTH_EXPIRED_EVENT));
             return 'Your session has expired. Please sign in again.';
         }
 
         if (status === 400) {
+            if (normalizedServerMessage === 'bad-request: invalid-request') {
+                return 'Invalid request';
+            }
+
             return serverMessage ?? 'Invalid request';
         }
 

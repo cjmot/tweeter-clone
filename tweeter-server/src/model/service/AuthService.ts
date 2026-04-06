@@ -6,7 +6,8 @@ import UserDAO from '../../database/dao/UserDAO';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 
 export class AuthService {
-    private static readonly sessionDurationMs = 24 * 60 * 60 * 1000;
+    private static readonly sessionDurationMs = 2 * 60 * 1000;
+    private static readonly apiPrefixes = ['bad-request:', 'unauthorized:', 'internal-server-error:'];
     private imagesDao: ImagesDAO;
     private sessionDao: SessionDAO;
     private userDao: UserDAO;
@@ -23,7 +24,7 @@ export class AuthService {
             const user = await this.userDao.verifyCredentials(normalizedAlias, password);
 
             if (user === null) {
-                throw new Error('Invalid alias or password');
+                throw new Error('unauthorized: invalid-credentials');
             }
 
             const authToken = AuthToken.Generate().dto;
@@ -85,6 +86,10 @@ export class AuthService {
 
     private wrapServiceError(message: string, error: unknown): Error {
         if (error instanceof Error) {
+            if (AuthService.apiPrefixes.some((prefix) => error.message.startsWith(prefix))) {
+                return error;
+            }
+
             return new Error(`${message}: ${error.message}`, { cause: error });
         }
 
