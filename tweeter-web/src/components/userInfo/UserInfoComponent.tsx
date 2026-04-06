@@ -93,7 +93,7 @@ const UserInfo = () => {
                 <div className="container">
                     <div className="row">
                         <div className="col-auto p-3">
-                            <img src={displayedUser.imageUrl} className="img-fluid" width="100" alt="Posting user" />
+                            <img src={displayedUser.imageUrl} className="img-fluid" width="100" alt="" />
                         </div>
                         <div className="col p-3">
                             {!displayedUser.equals(currentUser) && (
