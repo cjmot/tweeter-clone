@@ -326,6 +326,9 @@ Resources:
     Properties:
       FunctionName: authLogin
       Handler: lambda/auth/AuthLoginLambda.handler
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -482,6 +485,9 @@ Resources:
     Properties:
       FunctionName: getStoryHandler
       Handler: lambda/status/GetStoryLambda.handler
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -496,6 +502,9 @@ Resources:
     Properties:
       FunctionName: getFeedHandler
       Handler: lambda/status/GetFeedLambda.handler
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
