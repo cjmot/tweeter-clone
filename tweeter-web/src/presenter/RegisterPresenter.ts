@@ -7,17 +7,26 @@ interface ImageFileData {
 }
 
 export interface RegisterView extends AuthView {
+    imageUrl: string;
     setImageUrl: (imageUrl: string) => void;
-    setImageFileExtension: (imageFileExtension: string) => void;
 }
 
 export class RegisterPresenter extends AuthPresenter<RegisterView> {
+    private imageBytes: Uint8Array = new Uint8Array(0);
     private imageFileExtension: string = '';
     private rememberMe: boolean = false;
 
     public doRegister = async (firstName: string, lastName: string, alias: string, password: string) => {
         await this.doAuth(
-            () => this.authService.register(firstName, lastName, alias, password, this.imageFileExtension),
+            () =>
+                this.authService.register(
+                    firstName,
+                    lastName,
+                    alias,
+                    password,
+                    this.toBase64(this.imageBytes),
+                    this.imageFileExtension
+                ),
             (user) => `/feed/${user.alias}`,
             this.rememberMe,
             'register user'
@@ -52,20 +61,28 @@ export class RegisterPresenter extends AuthPresenter<RegisterView> {
             this.view.setImageUrl(URL.createObjectURL(file));
             const imageFileData = await this.parseImageFile(file);
             if (imageFileData) {
+                this.imageBytes = imageFileData.imageBytes;
                 this.imageFileExtension = imageFileData.imageFileExtension;
-                this.view.setImageFileExtension(imageFileData.imageFileExtension);
             } else {
+                this.imageBytes = new Uint8Array(0);
                 this.imageFileExtension = '';
-                this.view.setImageFileExtension('');
             }
         } else {
             this.view.setImageUrl('');
+            this.imageBytes = new Uint8Array(0);
             this.imageFileExtension = '';
-            this.view.setImageFileExtension('');
         }
     };
 
     private getFileExtension = (file: File): string | undefined => {
         return file.name.split('.').pop();
     };
+
+    private toBase64(bytes: Uint8Array): string {
+        let binary = '';
+        for (const byte of bytes) {
+            binary += String.fromCharCode(byte);
+        }
+        return btoa(binary);
+    }
 }

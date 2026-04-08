@@ -1,13 +1,18 @@
 import { UserCountResponse, UserRequest } from 'tweeter-shared';
-import { UserService } from '../../model/service/UserService';
+import { FollowService } from '../../model/service/FollowService';
+import { toApiGatewayError } from '../ApiGatewayError';
 
 export const handler = async (request: UserRequest): Promise<UserCountResponse> => {
-    const userService = new UserService();
-    const count = await userService.getFolloweeCount(request.token, request.userAlias);
+    try {
+        const followService = new FollowService();
+        const count = await followService.getFolloweeCount(request.token, request.userAlias);
 
-    return {
-        success: true,
-        message: null,
-        count: count,
-    };
+        return {
+            success: true,
+            message: null,
+            count: count,
+        };
+    } catch (error) {
+        throw toApiGatewayError(error);
+    }
 };

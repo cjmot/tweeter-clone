@@ -1,9 +1,10 @@
 import { AuthToken, User } from 'tweeter-shared';
-import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
-export class AuthService implements Service {
-    private readonly serverFacade = new ServerFacade();
+export class AuthService extends Service {
+    constructor() {
+        super();
+    }
 
     public async login(alias: string, password: string): Promise<[User, AuthToken]> {
         const [userDto, authTokenDto] = await this.serverFacade.login(alias, password);
@@ -22,6 +23,7 @@ export class AuthService implements Service {
         lastName: string,
         alias: string,
         password: string,
+        imageBytesBase64: string,
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
         const [userDto, authTokenDto] = await this.serverFacade.register(
@@ -29,6 +31,7 @@ export class AuthService implements Service {
             lastName,
             alias,
             password,
+            imageBytesBase64,
             imageFileExtension
         );
         const user = User.fromDto(userDto);

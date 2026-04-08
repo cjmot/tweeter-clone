@@ -1,9 +1,10 @@
 import { AuthToken, Status, StatusDto } from 'tweeter-shared';
-import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
-export class StatusService implements Service {
-    private readonly serverFacade = new ServerFacade();
+export class StatusService extends Service {
+    constructor() {
+        super();
+    }
 
     public async loadMoreStoryItems(
         authToken: AuthToken,

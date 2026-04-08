@@ -59,7 +59,7 @@ export function ItemScroller<T, P extends PagedItemPresenter<T, any>>(props: Pro
             >
                 {items.map((item, index) => {
                     return (
-                        <div className="row mb-3 mx-0 px-0 border rounded bg-white">
+                        <div className="row mb-3 mx-0 px-0 border rounded bg-white" key={index}>
                             {props.renderItem(item, index)}
                         </div>
                     );

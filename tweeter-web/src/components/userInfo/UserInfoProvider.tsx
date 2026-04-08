@@ -1,10 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { User, AuthToken } from 'tweeter-shared';
 import { UserInfoContext, UserInfoActionsContext } from './UserInfoContexts';
 import { UserInfo } from './UserInfo';
 
 const CURRENT_USER_KEY: string = 'CurrentUserKey';
 const AUTH_TOKEN_KEY: string = 'AuthTokenKey';
+const AUTH_EXPIRED_EVENT: string = 'tweeter:auth-expired';
 
 interface Props {
     children: React.ReactNode;
@@ -68,6 +69,13 @@ const UserInfoProvider: React.FC<Props> = ({ children }) => {
 
         clearLocalStorage();
     }, []);
+
+    useEffect(() => {
+        const handleAuthExpired = () => clearUserInfo();
+        window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+
+        return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    }, [clearUserInfo]);
 
     const setDisplayedUser = useCallback((user: User) => {
         setUserInfo((previous) => {

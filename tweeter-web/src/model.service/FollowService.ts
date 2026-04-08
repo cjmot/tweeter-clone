@@ -1,9 +1,10 @@
 import { AuthToken, User, UserDto } from 'tweeter-shared';
-import { ServerFacade } from '../network/ServerFacade';
 import { Service } from './Service';
 
-export class FollowService implements Service {
-    private readonly serverFacade = new ServerFacade();
+export class FollowService extends Service {
+    constructor() {
+        super();
+    }
 
     public async loadMoreFollowees(
         authToken: AuthToken,
