@@ -12,13 +12,17 @@ export class AuthGuard {
 
     public async verifySession(token: string): Promise<Session> {
         const session = await this.sessionDao.getSessionByToken(token);
+        const now = Date.now()
         if (!session) {
             throw new Error('unauthorized: invalid-session');
         }
 
-        if (session.expires_at <= Date.now()) {
+        if (session.expires_at <= now) {
+            await this.sessionDao.deleteSession(token)
             throw new Error('unauthorized: session-expired');
         }
+
+        await this.sessionDao.extendSession(token, session.expires_at);
 
         return session;
     }
