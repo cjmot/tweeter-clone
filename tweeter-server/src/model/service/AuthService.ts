@@ -31,7 +31,7 @@ export class AuthService {
             await this.sessionDao.createSession({
                 token: authToken.token,
                 alias: normalizedAlias,
-                expires_at: authToken.timestamp + AuthService.sessionDurationMs,
+                expires_at: authToken.timestamp,
             });
 
             return [user, authToken];
