@@ -3,19 +3,18 @@ import DAOFactory from '../../database/dao/DAOFactory';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 import { AuthGuard } from './AuthGuard';
 import FeedDAO from '../../database/dao/FeedDAO';
-import FollowDAO from '../../database/dao/FollowDAO';
 import StatusDAO from '../../database/dao/StatusDAO';
+import { PostStatusJob, POST_STATUS_JOB_TYPE, QUEUE_MESSAGE_VERSION } from './QueueMessages';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 export class StatusService {
     private authGuard: AuthGuard;
     private feedDao: FeedDAO;
-    private followDao: FollowDAO;
     private statusDao: StatusDAO;
 
     public constructor(factory: DAOFactory = new DynamoDAOFactory()) {
         this.authGuard = new AuthGuard(factory);
         this.feedDao = factory.getFeedDao();
-        this.followDao = factory.getFollowDao();
         this.statusDao = factory.getStatusDao();
     }
 
@@ -55,9 +54,30 @@ export class StatusService {
         };
 
         await this.statusDao.putStatus(statusToPersist);
+        await this.enqueuePostStatusJob(authorAlias, statusToPersist);
+    }
 
-        const followers = await this.followDao.getFollowersForFollowee(authorAlias);
-        const recipientAliases = followers.map((follow) => follow.follower_alias);
-        await this.feedDao.batchPutFeedStatuses(recipientAliases, statusToPersist);
+    private async enqueuePostStatusJob(authorAlias: string, status: StatusDto): Promise<void> {
+        const queueUrl = process.env.POST_STATUS_QUEUE_URL;
+        if (!queueUrl) {
+            throw new Error('internal-server-error: POST_STATUS_QUEUE_URL is not configured');
+        }
+
+        const region = process.env.REGION ?? process.env.AWS_REGION ?? 'us-east-1';
+        const sqsClient = new SQSClient({ region });
+
+        const message: PostStatusJob = {
+            type: POST_STATUS_JOB_TYPE,
+            version: QUEUE_MESSAGE_VERSION,
+            authorAlias,
+            status,
+        };
+
+        await sqsClient.send(
+            new SendMessageCommand({
+                QueueUrl: queueUrl,
+                MessageBody: JSON.stringify(message),
+            })
+        );
     }
 }

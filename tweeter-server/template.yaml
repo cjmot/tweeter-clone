@@ -117,7 +117,7 @@ Resources:
                 type: aws
                 httpMethod: POST
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${authLoginHandler.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${authLoginHandler.Arn}:live/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -260,7 +260,7 @@ Resources:
                 type: aws
                 httpMethod: POST
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getStoryHandler.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getStoryHandler.Arn}:live/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -273,7 +273,7 @@ Resources:
                 type: aws
                 httpMethod: POST
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFeedHandler.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getFeedHandler.Arn}:live/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -293,13 +293,20 @@ Resources:
 
 
   #
-  # SQS Queues  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
+  # SQS Queues
   #
 
-  #   MyQueue:
-  #     Type: AWS::SQS::Queue
-  #     Properties:
-  #       QueueName: MyQueue
+  postStatusQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: post-status-queue
+      VisibilityTimeout: 60
+
+  updateFeedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: update-feed-queue
+      VisibilityTimeout: 60
 
 
   #
@@ -327,8 +334,6 @@ Resources:
       FunctionName: authLogin
       Handler: lambda/auth/AuthLoginLambda.handler
       AutoPublishAlias: live
-      ProvisionedConcurrencyConfig:
-        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -486,8 +491,6 @@ Resources:
       FunctionName: getStoryHandler
       Handler: lambda/status/GetStoryLambda.handler
       AutoPublishAlias: live
-      ProvisionedConcurrencyConfig:
-        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -503,8 +506,6 @@ Resources:
       FunctionName: getFeedHandler
       Handler: lambda/status/GetFeedLambda.handler
       AutoPublishAlias: live
-      ProvisionedConcurrencyConfig:
-        ProvisionedConcurrentExecutions: 1
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -520,6 +521,9 @@ Resources:
       FunctionName: postStatusHandler
       Handler: lambda/status/PostStatusLambda.handler
       Policies: *commonPolicies
+      Environment:
+        Variables:
+          POST_STATUS_QUEUE_URL: !Ref postStatusQueue
       Events:
         PostApi:
           Type: Api
@@ -529,21 +533,69 @@ Resources:
             Method: POST
 
   #
-  # SQS Queue Lambda Functions  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
+  # Explicit API Gateway invoke permissions for versioned aliases
   #
 
-  #   MyQueueFunction:
-  #     Type: AWS::Serverless::Function
-  #     Properties:
-  #       FunctionName: MyQueueFunction
-  #       Handler: <PATH TO LAMBDA HANDLER>
-  #       Policies: *commonPolicies
-  #       Events:
-  #         SQSTrigger:
-  #           Type: SQS
-  #           Properties:
-  #             Queue: !GetAtt MyQueue.Arn
-  #             Enabled: true
+  authLoginLiveInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub ${authLoginHandler}:live
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${tweeterApi}/*/POST/auth/login
+
+  getStoryLiveInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub ${getStoryHandler}:live
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${tweeterApi}/*/POST/story/get
+
+  getFeedLiveInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub ${getFeedHandler}:live
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${tweeterApi}/*/POST/feed/get
+
+  #
+  # SQS Queue Lambda Functions
+  #
+
+  postUpdateFeedMessagesHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: postUpdateFeedMessagesHandler
+      Handler: lambda/status/PostUpdateFeedMessagesLambda.handler
+      Policies: *commonPolicies
+      Environment:
+        Variables:
+          POST_STATUS_QUEUE_URL: !Ref postStatusQueue
+          UPDATE_FEED_QUEUE_URL: !Ref updateFeedQueue
+          FOLLOWERS_PAGE_SIZE: 100
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt postStatusQueue.Arn
+            BatchSize: 10
+            Enabled: true
+
+  updateFeedsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: updateFeedsHandler
+      Handler: lambda/status/UpdateFeedsLambda.handler
+      Policies: *commonPolicies
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt updateFeedQueue.Arn
+            BatchSize: 10
+            Enabled: true
 
   #
   # S3 Buckets
@@ -599,8 +651,8 @@ Resources:
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 10
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   followTable:
     Type: AWS::DynamoDB::Table
@@ -629,7 +681,7 @@ Resources:
               KeyType: RANGE
           ProvisionedThroughput:
             ReadCapacityUnits: 10
-            WriteCapacityUnits: 10
+            WriteCapacityUnits: 150
           Projection:
             ProjectionType: ALL
 
@@ -646,7 +698,7 @@ Resources:
       BillingMode: PROVISIONED
       ProvisionedThroughput:
         ReadCapacityUnits: 10
-        WriteCapacityUnits: 10
+        WriteCapacityUnits: 150
 
   statusTable:
     Type: AWS::DynamoDB::Table
@@ -664,8 +716,8 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 10
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   feedTable:
     Type: AWS::DynamoDB::Table
@@ -683,9 +735,5 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 10
-
-  #
-  # TODO: ADD MORE TABLE DEFINITIONS HERE
-  #
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
