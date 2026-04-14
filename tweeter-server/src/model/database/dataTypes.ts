@@ -29,6 +29,8 @@ export interface UserRecord {
     last_name: string;
     image_url: string;
     password: string;
+    follower_count?: number;
+    followee_count?: number;
 }
 
 export interface StatusRecord {

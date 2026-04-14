@@ -6,4 +6,8 @@ export default interface UserDAO extends TweeterDAO {
     getUserByAlias(alias: string): Promise<UserDto | null>;
     getUsersByAliases(aliases: string[]): Promise<UserDto[]>;
     verifyCredentials(alias: string, password: string): Promise<UserDto | null>;
+    getFollowerCount(alias: string): Promise<number>;
+    getFolloweeCount(alias: string): Promise<number>;
+    updateFollowerCount(alias: string, delta: number): Promise<void>;
+    updateFolloweeCount(alias: string, delta: number): Promise<void>;
 }

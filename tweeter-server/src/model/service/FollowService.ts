@@ -55,9 +55,16 @@ export class FollowService {
         const session = await this.authGuard.verifySession(token);
         const followerAlias = this.normalizeAlias(session.alias);
         const followeeAlias = this.normalizeAlias(userToUnfollow.alias);
-        await this.followDao.deleteFollow(followerAlias, followeeAlias);
-        const followerCount = await this.followDao.getFollowerCountForFollowee(followeeAlias);
-        const followeeCount = await this.followDao.getFolloweeCountForFollower(followerAlias);
+        const existingFollow = await this.followDao.getFollow(followerAlias, followeeAlias);
+
+        if (existingFollow) {
+            await this.followDao.deleteFollow(followerAlias, followeeAlias);
+            await this.userDao.updateFollowerCount(followeeAlias, -1);
+            await this.userDao.updateFolloweeCount(followerAlias, -1);
+        }
+
+        const followerCount = await this.userDao.getFollowerCount(followeeAlias);
+        const followeeCount = await this.userDao.getFolloweeCount(followerAlias);
 
         return [followerCount, followeeCount];
     }
@@ -71,22 +78,27 @@ export class FollowService {
             throw new Error('bad-request: Follower user not found');
         }
 
-        await this.followDao.putFollow({
-            follower_alias: followerAlias,
-            follower_name: this.fullName(followerUser),
-            followee_alias: followeeAlias,
-            followee_name: this.fullName(userToFollow),
-        });
+        const existingFollow = await this.followDao.getFollow(followerAlias, followeeAlias);
+        if (!existingFollow) {
+            await this.followDao.putFollow({
+                follower_alias: followerAlias,
+                follower_name: this.fullName(followerUser),
+                followee_alias: followeeAlias,
+                followee_name: this.fullName(userToFollow),
+            });
+            await this.userDao.updateFollowerCount(followeeAlias, 1);
+            await this.userDao.updateFolloweeCount(followerAlias, 1);
+        }
     }
 
     public async getFollowerCount(token: string, userAlias: string): Promise<number> {
         await this.authGuard.verifySession(token);
-        return await this.followDao.getFollowerCountForFollowee(this.normalizeAlias(userAlias));
+        return await this.userDao.getFollowerCount(this.normalizeAlias(userAlias));
     }
 
     public async getFolloweeCount(token: string, userAlias: string): Promise<number> {
         await this.authGuard.verifySession(token);
-        return await this.followDao.getFolloweeCountForFollower(this.normalizeAlias(userAlias));
+        return await this.userDao.getFolloweeCount(this.normalizeAlias(userAlias));
     }
 
     public async getIsFollowerStatus(token: string, userAlias: string, selectedUserAlias: string): Promise<boolean> {

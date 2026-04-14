@@ -7,7 +7,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "npm run compile",
         "compile": "npm run clean && tsc",
-        "clean": "rimraf dist"
+        "clean": "rimraf dist",
+        "backfill:counts": "npm run build && node dist/scripts/BackfillFollowCounts.js"
     },
     "keywords": [],
     "author": "",

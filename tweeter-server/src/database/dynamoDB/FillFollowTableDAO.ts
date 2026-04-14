@@ -10,11 +10,12 @@ export class FillFollowTableDao {
     //
     // Modify these values as needed to match your follow table.
     //
-    private readonly tableName = 'tweeter_follow';
+    private readonly tableName = 'follow';
     private readonly followerAliasAttribute = 'follower_alias';
     private readonly followeeAliasAttribute = 'followee_alias';
 
-    private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+    private readonly region = process.env.AWS_REGION ?? 'us-east-1';
+    private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: this.region }));
 
     async createFollows(followeeAlias: string, followerAliasList: string[]) {
         if (followerAliasList.length == 0) {

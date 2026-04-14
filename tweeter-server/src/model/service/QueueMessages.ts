@@ -10,6 +10,7 @@ export interface PostStatusJob {
     authorAlias: string;
     status: StatusDto;
     lastFollowerAlias?: string;
+    continuationDepth?: number;
 }
 
 export interface UpdateFeedJob {

@@ -1,7 +1,7 @@
-import { SendMessageBatchCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import DAOFactory from '../../database/dao/DAOFactory';
+import QueueDAO from '../../database/dao/QueueDAO';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
-import { PostStatusJob, QUEUE_MESSAGE_VERSION, UPDATE_FEED_JOB_TYPE } from '../../model/service/QueueMessages';
+import { PostStatusJob, QUEUE_MESSAGE_VERSION, UPDATE_FEED_JOB_TYPE, UpdateFeedJob } from '../../model/service/QueueMessages';
 
 interface SqsRecord {
     body: string;
@@ -11,91 +11,98 @@ interface SqsEvent {
     Records: SqsRecord[];
 }
 
-const MAX_SQS_BATCH_ENTRIES = 10;
-const RECIPIENTS_PER_UPDATE_FEED_MESSAGE = 25;
+interface LambdaContext {
+    getRemainingTimeInMillis?: () => number;
+}
+
+const RECIPIENTS_PER_UPDATE_FEED_MESSAGE = 100;
 const DEFAULT_FOLLOWERS_PAGE_SIZE = 100;
+const DEFAULT_MAX_PAGES_PER_INVOCATION = 25;
+const DEFAULT_MAX_CONTINUATION_DEPTH = 500;
+const REMAINING_TIME_BUFFER_MS = 10_000;
 
-const region = process.env.REGION ?? process.env.AWS_REGION ?? 'us-east-1';
-const sqsClient = new SQSClient({ region });
-
-export const handler = async (event: SqsEvent): Promise<void> => {
+export const handler = async (event: SqsEvent, context?: LambdaContext): Promise<void> => {
     const factory = new DynamoDAOFactory();
+    const queueDao = factory.getQueueDao();
 
     for (const record of event.Records) {
-        const job = parsePostStatusJob(record.body);
-        await processPostStatusJob(job, factory);
-    }
-};
-
-const processPostStatusJob = async (job: PostStatusJob, factory: DAOFactory): Promise<void> => {
-    const followersPageSize = getFollowersPageSize();
-    const followDao = factory.getFollowDao();
-    const page = await followDao.getPageOfFollowers(job.authorAlias, followersPageSize, job.lastFollowerAlias);
-    const recipientAliases = page.values.map((follow) => follow.follower_alias);
-
-    if (recipientAliases.length > 0) {
-        await enqueueUpdateFeedJobs(job, recipientAliases);
-    }
-
-    if (page.hasMorePages && page.lastKey) {
-        await enqueueContinuationJob({
-            ...job,
-            lastFollowerAlias: page.lastKey,
-        });
-    }
-};
-
-const enqueueUpdateFeedJobs = async (job: PostStatusJob, recipientAliases: string[]): Promise<void> => {
-    const updateFeedQueueUrl = process.env.UPDATE_FEED_QUEUE_URL;
-    if (!updateFeedQueueUrl) {
-        throw new Error('internal-server-error: UPDATE_FEED_QUEUE_URL is not configured');
-    }
-
-    const recipientChunks = chunk(recipientAliases, RECIPIENTS_PER_UPDATE_FEED_MESSAGE);
-    const messageBodies = recipientChunks.map((aliases) =>
-        JSON.stringify({
-            type: UPDATE_FEED_JOB_TYPE,
-            version: QUEUE_MESSAGE_VERSION,
-            status: job.status,
-            recipientAliases: aliases,
-        })
-    );
-
-    const entryChunks = chunk(
-        messageBodies.map((messageBody, index) => ({
-            Id: `${index}`,
-            MessageBody: messageBody,
-        })),
-        MAX_SQS_BATCH_ENTRIES
-    );
-
-    for (const entries of entryChunks) {
-        const response = await sqsClient.send(
-            new SendMessageBatchCommand({
-                QueueUrl: updateFeedQueueUrl,
-                Entries: entries,
-            })
-        );
-
-        if ((response.Failed?.length ?? 0) > 0) {
-            const failedIds = response.Failed?.map((failed) => failed.Id).join(', ');
-            throw new Error(`internal-server-error: Failed to enqueue update feed jobs: ${failedIds ?? 'unknown failure'}`);
+        try {
+            const job = parsePostStatusJob(record.body);
+            await processPostStatusJob(job, factory, queueDao, context);
+        } catch (error) {
+            console.error('postUpdateFeedMessagesHandler failed', error);
+            throw error;
         }
     }
 };
 
-const enqueueContinuationJob = async (job: PostStatusJob): Promise<void> => {
-    const postStatusQueueUrl = process.env.POST_STATUS_QUEUE_URL;
-    if (!postStatusQueueUrl) {
-        throw new Error('internal-server-error: POST_STATUS_QUEUE_URL is not configured');
+const processPostStatusJob = async (
+    job: PostStatusJob,
+    factory: DAOFactory,
+    queueDao: QueueDAO,
+    context?: LambdaContext
+): Promise<void> => {
+    const currentDepth = job.continuationDepth ?? 0;
+    const maxContinuationDepth = getMaxContinuationDepth();
+    if (currentDepth > maxContinuationDepth) {
+        throw new Error('internal-server-error: Max continuation depth exceeded');
     }
 
-    await sqsClient.send(
-        new SendMessageCommand({
-            QueueUrl: postStatusQueueUrl,
-            MessageBody: JSON.stringify(job),
-        })
-    );
+    const followersPageSize = getFollowersPageSize();
+    const maxPagesPerInvocation = getMaxPagesPerInvocation();
+    const followDao = factory.getFollowDao();
+    let lastFollowerAlias = job.lastFollowerAlias;
+    let hasMorePages = true;
+
+    for (let pagesProcessed = 0; hasMorePages && pagesProcessed < maxPagesPerInvocation; pagesProcessed++) {
+        const page = await followDao.getPageOfFollowers(job.authorAlias, followersPageSize, lastFollowerAlias);
+        const recipientAliases = page.values.map((follow) => follow.follower_alias);
+
+        if (recipientAliases.length > 0) {
+            await enqueueUpdateFeedJobs(job, recipientAliases, queueDao);
+        }
+
+        if (page.hasMorePages && !page.lastKey) {
+            throw new Error('internal-server-error: Missing continuation key for paged followers');
+        }
+        if (page.hasMorePages && page.lastKey === lastFollowerAlias) {
+            throw new Error('internal-server-error: Pagination did not advance');
+        }
+
+        hasMorePages = page.hasMorePages;
+        lastFollowerAlias = page.lastKey;
+
+        if (hasMorePages && !hasTimeForAnotherPage(context)) {
+            break;
+        }
+    }
+
+    if (hasMorePages && lastFollowerAlias) {
+        await enqueueContinuationJob(
+            {
+                ...job,
+                lastFollowerAlias,
+                continuationDepth: currentDepth + 1,
+            },
+            queueDao
+        );
+    }
+};
+
+const enqueueUpdateFeedJobs = async (job: PostStatusJob, recipientAliases: string[], queueDao: QueueDAO): Promise<void> => {
+    const recipientChunks = chunk(recipientAliases, RECIPIENTS_PER_UPDATE_FEED_MESSAGE);
+    const jobs: UpdateFeedJob[] = recipientChunks.map((aliases) => ({
+            type: UPDATE_FEED_JOB_TYPE,
+            version: QUEUE_MESSAGE_VERSION,
+            status: job.status,
+            recipientAliases: aliases,
+        }));
+
+    await queueDao.enqueueUpdateFeedJobs(jobs);
+};
+
+const enqueueContinuationJob = async (job: PostStatusJob, queueDao: QueueDAO): Promise<void> => {
+    await queueDao.enqueuePostStatusJob(job);
 };
 
 const parsePostStatusJob = (json: string): PostStatusJob => {
@@ -116,6 +123,12 @@ const parsePostStatusJob = (json: string): PostStatusJob => {
     if (!parsed.status || typeof parsed.status !== 'object') {
         throw new Error('bad-request: Missing status in post status message');
     }
+    if (
+        parsed.continuationDepth !== undefined &&
+        (!Number.isInteger(parsed.continuationDepth) || parsed.continuationDepth < 0)
+    ) {
+        throw new Error('bad-request: Invalid continuation depth in post status message');
+    }
 
     return parsed as PostStatusJob;
 };
@@ -132,6 +145,42 @@ const getFollowersPageSize = (): number => {
     }
 
     return parsedValue;
+};
+
+const getMaxPagesPerInvocation = (): number => {
+    const configuredValue = process.env.MAX_PAGES_PER_INVOCATION;
+    if (!configuredValue) {
+        return DEFAULT_MAX_PAGES_PER_INVOCATION;
+    }
+
+    const parsedValue = Number.parseInt(configuredValue, 10);
+    if (Number.isNaN(parsedValue) || parsedValue <= 0) {
+        return DEFAULT_MAX_PAGES_PER_INVOCATION;
+    }
+
+    return parsedValue;
+};
+
+const getMaxContinuationDepth = (): number => {
+    const configuredValue = process.env.MAX_CONTINUATION_DEPTH;
+    if (!configuredValue) {
+        return DEFAULT_MAX_CONTINUATION_DEPTH;
+    }
+
+    const parsedValue = Number.parseInt(configuredValue, 10);
+    if (Number.isNaN(parsedValue) || parsedValue < 0) {
+        return DEFAULT_MAX_CONTINUATION_DEPTH;
+    }
+
+    return parsedValue;
+};
+
+const hasTimeForAnotherPage = (context?: LambdaContext): boolean => {
+    if (!context?.getRemainingTimeInMillis) {
+        return true;
+    }
+
+    return context.getRemainingTimeInMillis() > REMAINING_TIME_BUFFER_MS;
 };
 
 function chunk<T>(items: T[], chunkSize: number): T[][] {

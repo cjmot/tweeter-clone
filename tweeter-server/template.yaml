@@ -300,13 +300,13 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: post-status-queue
-      VisibilityTimeout: 60
+      VisibilityTimeout: 90
 
   updateFeedQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: update-feed-queue
-      VisibilityTimeout: 60
+      VisibilityTimeout: 120
 
 
   #
@@ -570,17 +570,20 @@ Resources:
       FunctionName: postUpdateFeedMessagesHandler
       Handler: lambda/status/PostUpdateFeedMessagesLambda.handler
       Policies: *commonPolicies
+      Timeout: 60
       Environment:
         Variables:
           POST_STATUS_QUEUE_URL: !Ref postStatusQueue
           UPDATE_FEED_QUEUE_URL: !Ref updateFeedQueue
           FOLLOWERS_PAGE_SIZE: 100
+          MAX_PAGES_PER_INVOCATION: 25
+          MAX_CONTINUATION_DEPTH: 500
       Events:
         SQSTrigger:
           Type: SQS
           Properties:
             Queue: !GetAtt postStatusQueue.Arn
-            BatchSize: 10
+            BatchSize: 1
             Enabled: true
 
   updateFeedsHandler:
@@ -589,6 +592,7 @@ Resources:
       FunctionName: updateFeedsHandler
       Handler: lambda/status/UpdateFeedsLambda.handler
       Policies: *commonPolicies
+      Timeout: 90
       Events:
         SQSTrigger:
           Type: SQS
@@ -670,8 +674,8 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
       GlobalSecondaryIndexes:
         - IndexName: follow_index
           KeySchema:
@@ -680,8 +684,8 @@ Resources:
             - AttributeName: follower_alias
               KeyType: RANGE
           ProvisionedThroughput:
-            ReadCapacityUnits: 10
-            WriteCapacityUnits: 150
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
           Projection:
             ProjectionType: ALL
 
@@ -697,8 +701,8 @@ Resources:
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 150
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   statusTable:
     Type: AWS::DynamoDB::Table
@@ -735,5 +739,5 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 100
+        WriteCapacityUnits: 100

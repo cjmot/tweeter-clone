@@ -7,7 +7,8 @@ export default abstract class DynamoDAO implements TweeterDAO {
     protected tableName: string;
 
     protected constructor(tableName: string) {
-        const client = new DynamoDBClient({ region: 'us-east-1' });
+        const region = process.env.REGION ?? process.env.AWS_REGION ?? 'us-east-1';
+        const client = new DynamoDBClient({ region });
         this.docClient = DynamoDBDocumentClient.from(client);
         this.tableName = tableName;
     }
