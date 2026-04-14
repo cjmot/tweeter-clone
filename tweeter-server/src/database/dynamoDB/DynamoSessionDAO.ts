@@ -3,7 +3,7 @@ import { SessionDAO } from '../dao/SessionDAO';
 import { Session } from '../../model/database/dataTypes';
 import DynamoDAO from './DynamoDAO';
 
-const SESSION_DURATION_MS = 2 * 60 * 1000;
+const SESSION_DURATION_MS = 2 * 60 * 60 * 1000;
 
 export default class DynamoSessionDAO extends DynamoDAO implements SessionDAO {
     public constructor() {

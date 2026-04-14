@@ -6,7 +6,6 @@ import UserDAO from '../../database/dao/UserDAO';
 import DynamoDAOFactory from '../../database/dynamoDB/DynamoDAOFactory';
 
 export class AuthService {
-    private static readonly sessionDurationMs = 2 * 60 * 1000;
     private static readonly apiPrefixes = ['bad-request:', 'unauthorized:', 'internal-server-error:'];
     private imagesDao: ImagesDAO;
     private sessionDao: SessionDAO;
@@ -67,7 +66,7 @@ export class AuthService {
             await this.sessionDao.createSession({
                 token: authToken.token,
                 alias: normalizedAlias,
-                expires_at: authToken.timestamp + AuthService.sessionDurationMs,
+                expires_at: authToken.timestamp,
             });
 
             return [createdUser, authToken];
