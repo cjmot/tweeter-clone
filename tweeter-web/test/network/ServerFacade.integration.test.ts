@@ -12,7 +12,8 @@ describe('ServerFacade integration (happy paths)', () => {
     beforeAll(async () => {
         serverFacade = new ServerFacade();
 
-        const testAlias = 'testAlias';
+        const uniqueSuffix = `${Date.now()}${Math.floor(Math.random() * 10000)}`;
+        const testAlias = `testAlias${uniqueSuffix}`;
         const [user, token] = await serverFacade.register(
             'Integration',
             'Tester',
