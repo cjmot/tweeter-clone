@@ -7,7 +7,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "npm run compile",
         "compile": "npm run clean && tsc",
-        "clean": "rimraf dist"
+        "clean": "rimraf dist",
+        "backfill:counts": "npm run build && node dist/scripts/BackfillFollowCounts.js"
     },
     "keywords": [],
     "author": "",
@@ -15,6 +16,7 @@
     "type": "commonjs",
     "dependencies": {
         "@aws-sdk/client-s3": "^3.1024.0",
+        "@aws-sdk/client-sqs": "^3.1029.0",
         "@aws-sdk/lib-dynamodb": "^3.1022.0",
         "bcryptjs": "^3.0.3",
         "date-fns": "^3.3.1",

@@ -46,7 +46,7 @@ export class ServerFacade {
     private readonly clientCommunicator: ClientCommunicator;
 
     public constructor() {
-        const SERVER_URL = 'https://t1eduah3p3.execute-api.us-east-1.amazonaws.com/prod'
+        const SERVER_URL = 'https://t1eduah3p3.execute-api.us-east-1.amazonaws.com/prod';
         this.clientCommunicator = new ClientCommunicator(SERVER_URL);
     }
 

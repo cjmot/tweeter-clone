@@ -1,10 +1,12 @@
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { BatchWriteCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { StatusDto } from 'tweeter-shared';
 import FeedDAO from '../dao/FeedDAO';
 import DynamoDAO from './DynamoDAO';
 import { DataPage, FeedRecord } from '../../model/database/dataTypes';
 
 export default class DynamoFeedDAO extends DynamoDAO implements FeedDAO {
+    private static readonly MAX_BATCH_WRITE_SIZE = 25;
+
     public constructor() {
         super('feed');
     }
@@ -31,7 +33,29 @@ export default class DynamoFeedDAO extends DynamoDAO implements FeedDAO {
 
     public async batchPutFeedStatuses(userAliases: string[], status: StatusDto): Promise<void> {
         const uniqueAliases = Array.from(new Set(userAliases));
-        await Promise.all(uniqueAliases.map(async (alias) => this.putFeedStatus(alias, status)));
+        if (uniqueAliases.length === 0) {
+            return;
+        }
+
+        const writeRequests = uniqueAliases.map((alias) => ({
+            PutRequest: {
+                Item: {
+                    recipient_alias: alias,
+                    timestamp: status.timestamp,
+                    post: status.post,
+                    user: status.user,
+                } as FeedRecord,
+            },
+        }));
+
+        for (
+            let startIndex = 0;
+            startIndex < writeRequests.length;
+            startIndex += DynamoFeedDAO.MAX_BATCH_WRITE_SIZE
+        ) {
+            const chunk = writeRequests.slice(startIndex, startIndex + DynamoFeedDAO.MAX_BATCH_WRITE_SIZE);
+            await this.batchWriteWithRetry(chunk);
+        }
     }
 
     public async getPageOfFeedStatuses(
@@ -72,5 +96,43 @@ export default class DynamoFeedDAO extends DynamoDAO implements FeedDAO {
         }
 
         return new Error(message);
+    }
+
+    private async batchWriteWithRetry(
+        requests: Array<{ PutRequest: { Item: FeedRecord } }>
+    ): Promise<void> {
+        let unprocessedRequests = requests;
+        let attempt = 0;
+
+        while (unprocessedRequests.length > 0) {
+            try {
+                const response = await this.docClient.send(
+                    new BatchWriteCommand({
+                        RequestItems: {
+                            [this.tableName]: unprocessedRequests,
+                        },
+                    })
+                );
+
+                unprocessedRequests =
+                    (response.UnprocessedItems?.[this.tableName] as Array<{ PutRequest: { Item: FeedRecord } }> | undefined) ??
+                    [];
+            } catch (error) {
+                throw this.wrapDynamoError('Failed to batch store feed items', error);
+            }
+
+            if (unprocessedRequests.length > 0) {
+                attempt += 1;
+                if (attempt > 5) {
+                    throw new Error('Failed to batch store feed items: unprocessed items exceeded retry limit');
+                }
+
+                await this.sleep(attempt * 50);
+            }
+        }
+    }
+
+    private async sleep(milliseconds: number): Promise<void> {
+        await new Promise((resolve) => setTimeout(resolve, milliseconds));
     }
 }

@@ -30,9 +30,11 @@ const UserInfo = () => {
         presenterRef.current = new UserInfoPresenter(view);
     }
 
-    if (!displayedUser) {
-        setDisplayedUser(currentUser!);
-    }
+    useEffect(() => {
+        if (!displayedUser && currentUser) {
+            setDisplayedUser(currentUser);
+        }
+    }, [displayedUser, currentUser, setDisplayedUser]);
 
     useEffect(() => {
         if (authToken && currentUser && displayedUser) {

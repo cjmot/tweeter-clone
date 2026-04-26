@@ -1,4 +1,4 @@
-import { BatchGetCommand, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { BatchGetCommand, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import bcrypt from 'bcryptjs';
 import { UserDto } from 'tweeter-shared';
 import UserDAO from '../dao/UserDAO';
@@ -6,6 +6,9 @@ import DynamoDAO from './DynamoDAO';
 import { UserRecord } from '../../model/database/dataTypes';
 
 export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
+    private readonly followerCountAttribute = 'follower_count';
+    private readonly followeeCountAttribute = 'followee_count';
+
     public constructor() {
         super('users');
     }
@@ -18,7 +21,9 @@ export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
             first_name: user.firstName,
             last_name: user.lastName,
             image_url: user.imageUrl,
-            password: hash
+            password: hash,
+            follower_count: 0,
+            followee_count: 0,
         };
 
         try {
@@ -102,6 +107,81 @@ export default class DynamoUserDAO extends DynamoDAO implements UserDAO {
             return this.toUserDto(item);
         } catch (error) {
             throw this.wrapDynamoError(`Failed to verify credentials for ${alias}`, error);
+        }
+    }
+
+    public async getFollowerCount(alias: string): Promise<number> {
+        return this.getCount(alias, this.followerCountAttribute);
+    }
+
+    public async getFolloweeCount(alias: string): Promise<number> {
+        return this.getCount(alias, this.followeeCountAttribute);
+    }
+
+    public async updateFollowerCount(alias: string, delta: number): Promise<void> {
+        await this.updateCount(alias, this.followerCountAttribute, delta);
+    }
+
+    public async updateFolloweeCount(alias: string, delta: number): Promise<void> {
+        await this.updateCount(alias, this.followeeCountAttribute, delta);
+    }
+
+    private async getCount(alias: string, attributeName: string): Promise<number> {
+        try {
+            const response = await this.docClient.send(
+                new GetCommand({
+                    TableName: this.tableName,
+                    Key: { alias },
+                    ProjectionExpression: '#countAttr',
+                    ExpressionAttributeNames: {
+                        '#countAttr': attributeName,
+                    },
+                })
+            );
+
+            if (!response.Item) {
+                throw new Error('bad-request: user not found');
+            }
+
+            const countValue = response.Item[attributeName];
+            return typeof countValue === 'number' ? countValue : 0;
+        } catch (error) {
+            if (error instanceof Error && error.message.startsWith('bad-request:')) {
+                throw error;
+            }
+
+            throw this.wrapDynamoError(`Failed to read ${attributeName} for ${alias}`, error);
+        }
+    }
+
+    private async updateCount(alias: string, attributeName: string, delta: number): Promise<void> {
+        try {
+            const expressionAttributeNames: Record<string, string> = {
+                '#countAttr': attributeName,
+            };
+            const expressionAttributeValues: Record<string, number> = {
+                ':delta': delta,
+            };
+
+            let conditionExpression = 'attribute_exists(alias)';
+
+            if (delta < 0) {
+                expressionAttributeValues[':minValue'] = Math.abs(delta);
+                conditionExpression += ' AND #countAttr >= :minValue';
+            }
+
+            await this.docClient.send(
+                new UpdateCommand({
+                    TableName: this.tableName,
+                    Key: { alias },
+                    UpdateExpression: 'ADD #countAttr :delta',
+                    ConditionExpression: conditionExpression,
+                    ExpressionAttributeNames: expressionAttributeNames,
+                    ExpressionAttributeValues: expressionAttributeValues,
+                })
+            );
+        } catch (error) {
+            throw this.wrapDynamoError(`Failed to update ${attributeName} for ${alias}`, error);
         }
     }
 

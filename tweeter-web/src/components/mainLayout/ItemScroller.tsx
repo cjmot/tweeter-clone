@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { PagedItemPresenter, PagedItemView } from '../../presenter/PagedItemPresenter';
 import { useParams } from 'react-router-dom';
-import { useUserInfo } from '../userInfo/UserHooks';
+import { useUserInfo, useUserInfoActions } from '../userInfo/UserHooks';
 import { useMessageActions } from '../toaster/MessageHooks';
 
 interface Props<T, P extends PagedItemPresenter<T, any>> {
@@ -15,6 +15,7 @@ export function ItemScroller<T, P extends PagedItemPresenter<T, any>>(props: Pro
     const [items, setItems] = useState<T[]>([]);
 
     const { displayedUser, authToken } = useUserInfo();
+    const { setDisplayedUser } = useUserInfoActions();
     const { displayErrorMessage } = useMessageActions();
 
     const presenterRef = useRef<P | null>(null);
@@ -31,10 +32,27 @@ export function ItemScroller<T, P extends PagedItemPresenter<T, any>>(props: Pro
     }
 
     useEffect(() => {
+        let isCancelled = false;
+
         if (authToken && displayedUserAliasParam && displayedUserAliasParam !== displayedUser?.alias) {
-            presenterRef.current?.getUser(authToken, displayedUserAliasParam);
+            presenterRef
+                .current?.getUser(authToken, displayedUserAliasParam)
+                .then((user) => {
+                    if (!isCancelled && user) {
+                        setDisplayedUser(user);
+                    }
+                })
+                .catch((error) => {
+                    if (!isCancelled) {
+                        displayErrorMessage(`Failed to load user: ${error}`);
+                    }
+                });
         }
-    }, [displayedUserAliasParam, authToken, displayedUser?.alias]);
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [displayedUserAliasParam, authToken, displayedUser?.alias, setDisplayedUser, displayErrorMessage]);
 
     useEffect(() => {
         setItems([]);
