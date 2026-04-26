@@ -741,5 +741,5 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 100
+        ReadCapacityUnits: 75
         WriteCapacityUnits: 100
