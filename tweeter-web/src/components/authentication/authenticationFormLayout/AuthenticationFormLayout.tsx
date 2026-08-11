@@ -17,7 +17,7 @@ const AuthenticationFormLayout = (props: Props) => {
         <div className="center">
             <div className="form-main w-100 m-auto rounded">
                 <form>
-                    <img className="mb-4" src="/bird-logo-64.png" alt="" width="72" height="72" />
+                    <img className="mb-4" src={`${import.meta.env.BASE_URL}bird-logo-64.png`} alt="" width="72" height="72" />
                     <h1 className="h3 mb-3 fw-normal">{props.headingText}</h1>
 
                     {props.inputFieldFactory()}

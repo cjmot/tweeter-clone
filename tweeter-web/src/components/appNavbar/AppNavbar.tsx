@@ -38,7 +38,7 @@ const AppNavbar = () => {
                     <div className="d-flex flex-row">
                         <div className="p-2">
                             <NavLink className="brand-link" to="/">
-                                <Image src={'/bird-white-32.png'} alt="" />
+                                <Image src={`${import.meta.env.BASE_URL}bird-white-32.png`} alt="" />
                             </NavLink>
                         </div>
                         <div id="brand-title" className="p-3">
