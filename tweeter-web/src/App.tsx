@@ -25,7 +25,7 @@ const App = () => {
     return (
         <div>
             <Toaster position="top-right" />
-            <BrowserRouter>{isAuthenticated() ? <AuthenticatedRoutes /> : <UnauthenticatedRoutes />}</BrowserRouter>
+            <BrowserRouter basename="/tweeter-clone">{isAuthenticated() ? <AuthenticatedRoutes /> : <UnauthenticatedRoutes />}</BrowserRouter>
         </div>
     );
 };

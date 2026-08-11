@@ -6,6 +6,7 @@ import viteCommonJs from 'vite-plugin-commonjs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/tweeter-clone/',
     plugins: [react(), viteTsconfigPaths(), svgrPlugin(), viteCommonJs()],
     server: {
         open: true,
